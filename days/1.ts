@@ -84,7 +84,7 @@ function deriveProgram(input: z.ZodLiteral<z.ZodAny>, output: z.ZodLiteral<z.Zod
 }
 
 function main() {
-  const asst = ASST.root('0')
+  const asst = ASST.root('aasdf')
   asst.generateChildren(ops, types)
   console.log('children:', asst.children.length)
   console.log(asst.toStringDeep())

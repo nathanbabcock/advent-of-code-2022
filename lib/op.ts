@@ -8,13 +8,27 @@ export type Op = {
   name: string
   type: z.ZodFunction<z.ZodTuple<[z.ZodTypeAny, ...z.ZodTypeAny[]], z.ZodUnknown>, z.ZodTypeAny>
   impl: (...[args]: any[]) => any
+
+  /**
+   * Given the input (first parameter) recommend a list of values for
+   * subsequent parameters.
+   * 
+   * `paramHints[0](input)` corresponds to the first *free* (non-input) parameter,
+   * and returns an array of possible recommended values.
+   */
+  paramHints?: ((input: any) => any[])[]
 }
+
+// TODO
 export type HigherOrderOp = (input: z.ZodTypeAny, output: z.ZodTypeAny) => Op
 
 export const Split: Op = {
   name: 'split',
   type: z.function().args(z.string(), Char).returns(z.array(z.string())),
   impl: (input: string, delimiter: string) => input.split(delimiter),
+  paramHints: [
+    (input: string) => [...new Set(input.split(''))] // unique characters
+  ],
 }
 
 export const Parse: Op = {
