@@ -1,4 +1,5 @@
-import { Op, Split } from '../lib/op'
+import { z } from 'zod'
+import { Char, Map, Max, Op, Parse, Program, Split, Sum } from '../lib/op'
 
 const steps: any[] = []
 
@@ -57,8 +58,32 @@ steps[3] = [
 steps[4] = [6000, 4000, 11000, 24000, 10000]
 
 // STEP 5: `max`
-steps[5] = 24000 // === output
+steps[5] = output // 24000
 
-const ops: Op[] = [
-  Split, // ...
+// Minimal set of "primitive" types (for binding to generic functions like `map`)
+const types = [
+  z.string(),
+  z.number(),
+  Char, // z.string().length(1)
+  z.function(),
+  z.array(z.any()),
 ]
+
+// Minimal library of functions to use
+const ops: Op[] = [
+  Split, Parse, Sum, Max, Map
+]
+
+function deriveProgram(input: z.ZodLiteral<z.ZodAny>, output: z.ZodLiteral<z.ZodAny>): Program {
+  throw new Error('TODO: write program')
+  // - breadth-first search from input to input
+  // - choose options based on compatible type signatures
+  // - (later) heuristics to guide search
+  // - recurse if no solution yet
+}
+
+function main() {
+  deriveProgram(steps[0], steps[1])
+}
+
+main()

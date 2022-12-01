@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/nathanbabcock/advent-of-code-2022/issues"
   },
-  "homepage": "https://github.com/nathanbabcock/advent-of-code-2022#readme"
+  "homepage": "https://github.com/nathanbabcock/advent-of-code-2022#readme",
+  "dependencies": {
+    "zod": "^3.19.1"
+  }
 }

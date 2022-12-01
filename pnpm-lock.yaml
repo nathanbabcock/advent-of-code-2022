@@ -1,0 +1,13 @@
+lockfileVersion: 5.4
+
+specifiers:
+  zod: ^3.19.1
+
+dependencies:
+  zod: 3.19.1
+
+packages:
+
+  /zod/3.19.1:
+    resolution: {integrity: sha512-LYjZsEDhCdYET9ikFu6dVPGp2YH9DegXjdJToSzD9rO6fy4qiRYFoyEYwps88OseJlPyl2NOe2iJuhEhL7IpEA==}
+    dev: false
