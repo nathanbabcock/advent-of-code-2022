@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ASST } from '../lib/asst'
-import { Char, Max, Op, Parse, Program, Split, Sum } from '../lib/op'
+import { deriveProgram } from '../lib/derive'
+import { Char, Max, Op, Parse, Split, Sum } from '../lib/op'
 
 const steps: any[] = []
 
@@ -75,20 +76,14 @@ const ops: Op[] = [
   Split, Parse, Sum, Max,
 ]
 
-function deriveProgram(input: z.ZodLiteral<z.ZodAny>, output: z.ZodLiteral<z.ZodAny>): Program {
-  throw new Error('TODO: write program')
-  // - breadth-first search from input to input
-  // - choose options based on compatible type signatures
-  // - (later) heuristics to guide search
-  // - recurse if no solution yet
-}
-
 function main() {
-  const asst = ASST.root('aasdf')
-  asst.generateChildren(ops, types)
-  console.log('children:', asst.children.length)
-  console.log(asst.toStringDeep())
-  // deriveProgram(steps[0], steps[1])
+  // const input = '100\n\n200'
+  // const output = ['100', '200']
+  const input = steps[1]
+  const output = steps[2]
+  const program = deriveProgram(input, output, ops, types)
+  console.log(`Program (length ${program.length}):`)
+  program.forEach(asst => console.log('  ' + asst.toString()))
 }
 
 main()

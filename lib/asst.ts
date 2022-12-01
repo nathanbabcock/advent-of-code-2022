@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { Program } from './derive'
 import { Op } from './op'
 
 /**
@@ -35,6 +36,41 @@ export class ASST {
    */
   additionalParams: any[]
 
+  generateChildren(library: Op[], _types: z.ZodTypeAny[]) {
+    // Find compatible type signatures
+    // console.log('1️⃣  finding compatible types')
+    const compatibleOps = library.filter(childOp => {
+      const childInput = childOp.type.parameters().items[0]
+      const { success } = childInput.safeParse(this.value)
+      // console.log(` - checking ${childOp.name}(${JSON.stringify(this.value)}) => ${success ? '✅' : '❌'}`)
+      return success
+    })
+
+    for (const op of compatibleOps) {
+      // Generate options for free parameters
+      const numParams = op.type.parameters().items.length
+      if (numParams === 1)
+        this.addChild(op)
+      else if (numParams === 2) {
+        // console.log('2️⃣  finding free params')
+        let hint = op.paramHints![numParams - 2]
+        let freeParamPossibilities = hint(this.value)
+        for (const freeParam of freeParamPossibilities) {
+          // console.log(` - adding ${op.name}(${JSON.stringify(this.value)}, ${JSON.stringify(freeParam)})`)
+          this.addChild(op, [freeParam])
+        }
+
+      } else
+        throw new Error('Child generation does not handle more than one free param yet')
+    }
+  }
+
+  /** Returns the traversal from root to successive children, ending in this node */
+  trace(): Program {
+    if (!this.parent) return [this]
+    return [...this.parent.trace(), this]
+  }
+
   toString(depth: number = 0): string {
     let str = ''
 
@@ -63,35 +99,6 @@ export class ASST {
     if (this.children.length > 0)
       str = [str, ...this.children.map(child => child.toStringDeep(depth + 1))].join('\n')
     return str
-  }
-
-  generateChildren(library: Op[], _types: z.ZodTypeAny[]) {
-    // Find compatible type signatures
-    console.log('1️⃣  finding compatible types')
-    const compatibleOps = library.filter(childOp => {
-      const childInput = childOp.type.parameters().items[0]
-      const { success } = childInput.safeParse(this.value)
-      console.log(` - checking ${childOp.name}(${JSON.stringify(this.value)}) => ${success ? '✅' : '❌'}`)
-      return success
-    })
-
-    for (const op of compatibleOps) {
-      // Generate options for free parameters
-      const numParams = op.type.parameters().items.length
-      if (numParams === 1)
-        this.addChild(op)
-      else if (numParams === 2) {
-        console.log('2️⃣  finding free params')
-        let hint = op.paramHints![numParams - 2]
-        let freeParamPossibilities = hint(this.value)
-        for (const freeParam of freeParamPossibilities) {
-          console.log(` - adding ${op.name}(${JSON.stringify(this.value)}, ${JSON.stringify(freeParam)})`)
-          this.addChild(op, [freeParam])
-        }
-
-      } else
-        throw new Error('Child generation does not handle more than one free param yet')
-    }
   }
 
   addChild(op: Op, boundParams?: any[]) {

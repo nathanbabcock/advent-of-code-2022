@@ -24,10 +24,11 @@ export type HigherOrderOp = (input: z.ZodTypeAny, output: z.ZodTypeAny) => Op
 
 export const Split: Op = {
   name: 'split',
-  type: z.function().args(z.string(), Char).returns(z.array(z.string())),
+  type: z.function().args(z.string(), z.string()).returns(z.array(z.string())),
   impl: (input: string, delimiter: string) => input.split(delimiter),
   paramHints: [
-    (input: string) => [...new Set(input.split(''))] // unique characters
+    // todo smarter hint (common substrings)
+    (input: string) => ['\n\n', ...new Set(input.split(''))] // unique characters
   ],
 }
 
@@ -52,4 +53,3 @@ export const Max: Op = {
 // export const Map: HigherOrderOp = (inputType, outputType) =>
 //   z.function().args(z.array(inputType), z.function().args(inputType).returns(outputType)).returns(z.array(outputType))
 
-export type Program = Op[] // Could be specified further that the output of every function is first input of next function
