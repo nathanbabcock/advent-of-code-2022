@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { Combinator } from './combinator'
 
 // Primitive types
 export const Char = z.string().length(1)
@@ -8,6 +9,8 @@ export type Op = {
   name: string
   type: z.ZodFunction<z.ZodTuple<[z.ZodTypeAny, ...z.ZodTypeAny[]], z.ZodUnknown>, z.ZodTypeAny>
   impl: (...[args]: any[]) => any
+  parents?: [Combinator, Op]
+  children?: Op[]
 
   /**
    * Given the input (first parameter) recommend a list of values for

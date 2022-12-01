@@ -1,3 +1,4 @@
+import { Library } from './library'
 import { ASST } from './asst'
 import { Op } from './op'
 
@@ -9,7 +10,7 @@ export const eq = (a: any, b: any) => {
   return a === b
 }
 
-export function deriveProgram(input: any, output: any, library: Op[], types: any): Program {
+export function deriveProgram(input: any, output: any, library: Library): Program {
   const queue: ASST[] = []
   const root = ASST.root(input)
   queue.push(root)
@@ -17,11 +18,12 @@ export function deriveProgram(input: any, output: any, library: Op[], types: any
   let nodesChecked = 0
   const limit = 1000
   let solutionNode: ASST | undefined
+  console.log(`looking for ${JSON.stringify(output)}`)
   while (queue.length > 0 && ++nodesChecked < limit && !solutionNode) {
     const cur = queue.shift()!
-    cur.generateChildren(library, types)
+    cur.generateChildren(library)
     for (const child of cur.children) {
-      console.log(`got ${JSON.stringify(child.value)}, looking for ${JSON.stringify(output)}`)
+      console.log(`${child.op?.name} => ${JSON.stringify(child.value)}`)
       if (eq(child.value, output)) {
         solutionNode = child
         break

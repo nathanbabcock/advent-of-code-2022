@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Program } from './derive'
+import { Library } from './library'
 import { Op } from './op'
 
 /**
@@ -36,10 +37,10 @@ export class ASST {
    */
   additionalParams: any[]
 
-  generateChildren(library: Op[], _types: z.ZodTypeAny[]) {
+  generateChildren(library: Library) {
     // Find compatible type signatures
     // console.log('1️⃣  finding compatible types')
-    const compatibleOps = library.filter(childOp => {
+    const compatibleOps = library.getOps().filter(childOp => {
       const childInput = childOp.type.parameters().items[0]
       const { success } = childInput.safeParse(this.value)
       // console.log(` - checking ${childOp.name}(${JSON.stringify(this.value)}) => ${success ? '✅' : '❌'}`)

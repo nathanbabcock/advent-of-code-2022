@@ -1,7 +1,8 @@
 import { z } from 'zod'
-import { ASST } from '../lib/asst'
 import { deriveProgram } from '../lib/derive'
 import { Char, Max, Op, Parse, Split, Sum } from '../lib/op'
+import { Combinator, Map } from '../lib/combinator'
+import { Library } from '../lib/library'
 
 const steps: any[] = []
 
@@ -63,7 +64,7 @@ steps[4] = [6000, 4000, 11000, 24000, 10000]
 steps[5] = output // 24000
 
 // Minimal set of "primitive" types (for binding to generic functions like `map`)
-const types = [
+const _types = [
   z.string(),
   z.number(),
   Char, // z.string().length(1)
@@ -72,16 +73,24 @@ const types = [
 ]
 
 // Minimal library of functions to use
-const ops: Op[] = [
-  Split, Parse, Sum, Max,
-]
+const ops: Op[] = [Split, Parse, Sum, Max]
+const combinators: Combinator[] = [Map]
+const library = new Library(ops, combinators)
+
+// Pre-seed the library with augmented types (2 levels deep)
+for (let i = 0; i < combinators.length * ops.length * 2; i++)
+  library.deriveNextOp()
+
 
 function main() {
-  // const input = '100\n\n200'
-  // const output = ['100', '200']
-  const input = steps[1]
-  const output = steps[2]
-  const program = deriveProgram(input, output, ops, types)
+  console.log('Library 📚 = ')
+  console.log(library.getOps().map(op => op.name))
+
+  const input = ['100\n200', '300\n400']
+  const output = [['100', '200'], ['300', '400']]
+  // const input = steps[1]
+  // const output = steps[2]
+  const program = deriveProgram(input, output, library)
   console.log(`Program (length ${program.length}):`)
   program.forEach(asst => console.log('  ' + asst.toString()))
 }
