@@ -1,0 +1,19 @@
+{
+  "name": "advent-of-code-2022",
+  "version": "0.1.0",
+  "description": "Meta-programming solutions to Advent of Code 2022 puzzles",
+  "main": "dist/days/1.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathanbabcock/advent-of-code-2022.git"
+  },
+  "author": "Nathan Babcock",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nathanbabcock/advent-of-code-2022/issues"
+  },
+  "homepage": "https://github.com/nathanbabcock/advent-of-code-2022#readme"
+}
