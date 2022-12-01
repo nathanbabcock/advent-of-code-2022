@@ -4,15 +4,38 @@ import { z } from 'zod'
 export const Char = z.string().length(1)
 
 // Op types
-export type Op = z.ZodFunction<any, any> | HigherOrderOp
+export type Op = {
+  name: string
+  type: z.ZodFunction<z.ZodTuple<[z.ZodTypeAny, ...z.ZodTypeAny[]], z.ZodUnknown>, z.ZodTypeAny>
+  impl: (...[args]: any[]) => any
+}
 export type HigherOrderOp = (input: z.ZodTypeAny, output: z.ZodTypeAny) => Op
 
-export const Split: Op = z.function().args(z.string(), Char).returns(z.array(z.string()))
-export const Parse: Op = z.function().args(z.string()).returns(z.number())
-export const Sum: Op = z.function().args(z.array(z.number())).returns(z.number())
-export const Max: Op = z.function().args(z.array(z.number())).returns(z.number())
+export const Split: Op = {
+  name: 'split',
+  type: z.function().args(z.string(), Char).returns(z.array(z.string())),
+  impl: (input: string, delimiter: string) => input.split(delimiter),
+}
 
-export const Map: HigherOrderOp = (inputType, outputType) =>
-  z.function().args(z.array(inputType), z.function().args(inputType).returns(outputType)).returns(z.array(outputType))
+export const Parse: Op = {
+  name: 'parse',
+  type: z.function().args(z.string()).returns(z.number()),
+  impl: (input: string) => parseInt(input),
+}
+
+export const Sum: Op = {
+  name: 'sum',
+  type: z.function().args(z.array(z.number())).returns(z.number()),
+  impl: (input: number[]) => input.reduce((a, b) => a + b, 0),
+}
+
+export const Max: Op = {
+  name: 'max',
+  type: z.function().args(z.array(z.number())).returns(z.number()),
+  impl: (input: number[]) => Math.max(...input),
+}
+
+// export const Map: HigherOrderOp = (inputType, outputType) =>
+//   z.function().args(z.array(inputType), z.function().args(inputType).returns(outputType)).returns(z.array(outputType))
 
 export type Program = Op[] // Could be specified further that the output of every function is first input of next function

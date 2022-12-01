@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { Char, Map, Max, Op, Parse, Program, Split, Sum } from '../lib/op'
+import { ASST } from '../lib/asst'
+import { Char, Max, Op, Parse, Program, Split, Sum } from '../lib/op'
 
 const steps: any[] = []
 
@@ -71,7 +72,7 @@ const types = [
 
 // Minimal library of functions to use
 const ops: Op[] = [
-  Split, Parse, Sum, Max, Map
+  Split, Parse, Sum, Max,
 ]
 
 function deriveProgram(input: z.ZodLiteral<z.ZodAny>, output: z.ZodLiteral<z.ZodAny>): Program {
@@ -83,7 +84,11 @@ function deriveProgram(input: z.ZodLiteral<z.ZodAny>, output: z.ZodLiteral<z.Zod
 }
 
 function main() {
-  deriveProgram(steps[0], steps[1])
+  const asst = ASST.root('0')
+  asst.generateChildren(ops, types)
+  console.log('children:', asst.children.length)
+  console.log(asst.toStringDeep())
+  // deriveProgram(steps[0], steps[1])
 }
 
 main()

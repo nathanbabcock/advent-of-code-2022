@@ -6,6 +6,9 @@
   "directories": {
     "lib": "lib"
   },
+  "scripts": {
+    "today": "pnpx vite-node days/1.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nathanbabcock/advent-of-code-2022.git"
