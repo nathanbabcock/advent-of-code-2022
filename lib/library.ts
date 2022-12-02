@@ -28,7 +28,7 @@ export class Library {
       for (const combinator of this.combinators) {
         if (op.children?.find(child => child.parents?.includes(combinator))) // not the most efficient but that's ok
           continue // already derived
-        const derivedOp = combinator(op.type, op)
+        const derivedOp = combinator(op)
         derivedOp.parents = [combinator, op]
         op.children = [...(op.children || []), derivedOp]
         this.derivedOps.push(derivedOp)

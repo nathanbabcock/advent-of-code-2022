@@ -2,7 +2,7 @@ import { readFileSync } from 'fs'
 import { z } from 'zod'
 import { Combinator, Map } from '../lib/combinator'
 import { Library } from '../lib/library'
-import { Char, Max, Op, Parse, Split, Sum } from '../lib/op'
+import { Max, Op, Parse, Split, Sum } from '../lib/op'
 import { deriveProgram, runProgram } from '../lib/program'
 
 const steps: any[] = []
@@ -50,15 +50,6 @@ steps[4] = [6000, 4000, 11000, 24000, 10000]
 // STEP 5: `max`
 steps[5] = output // 24000
 
-// Minimal set of "primitive" types (for binding to generic functions like `map`)
-const _types = [
-  z.string(),
-  z.number(),
-  Char, // z.string().length(1)
-  z.function(),
-  z.array(z.any()),
-]
-
 // Minimal library of functions to use
 const ops: Op[] = [Split, Parse, Sum, Max]
 const combinators: Combinator[] = [Map]
@@ -67,7 +58,6 @@ const library = new Library(ops, combinators)
 // Pre-seed the library with augmented types (2 levels deep)
 for (let i = 0; i < combinators.length * ops.length * 2; i++)
   library.deriveNextOp()
-
 
 function main() {
   console.log('Library 📚 = ')

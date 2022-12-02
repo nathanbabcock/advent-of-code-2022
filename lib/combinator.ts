@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { Op } from './op'
 
-export type Combinator = (value: z.ZodTypeAny, op: Op) => Op
+export type Combinator = (op: Op) => Op
 
-export const Map: Combinator = (value, op) => ({
+export const Map: Combinator = op => ({
   name: `map(${op.name})`,
   type: z.function()
     .args(

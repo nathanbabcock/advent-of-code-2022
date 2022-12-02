@@ -1,9 +1,6 @@
 import { z } from 'zod'
 import { Combinator } from './combinator'
 
-// Primitive types
-export const Char = z.string().length(1)
-
 // Op types
 export type Op = {
   name: string
