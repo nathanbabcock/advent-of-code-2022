@@ -1,8 +1,9 @@
-import { z } from 'zod'
 import { Program } from './program'
 import { Library } from './library'
 import { Op } from './op'
 import { prettyPrint } from './util'
+
+export const Never = Symbol("Never")
 
 /**
  * Abstract Syntax Search Tree 🍑🌲
@@ -119,6 +120,12 @@ export class ASST {
     this.additionalParams = boundParams ?? []
     if (this.parent)
       this.value = this.op!.impl(this.parent.value, ...this.additionalParams)
+    if (this.value === this.parent?.value) {
+      // short-circuit an infinite loop/identity function
+      // This op produced the same value as it's parent, e.g. sorting an already-sorted list
+      this.value = Never
+      // A value of Never won't match the signature of any other op, so it will never be used
+    }
   }
 
   /** @todo */

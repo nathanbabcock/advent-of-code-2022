@@ -4,8 +4,8 @@ import { Library } from './library'
 export type Program = ASST[] // Could be specified further that the output of every function is first input of next function
 
 /** Deep equality for arrays, objects, and primitives */
-export const eq = (a: any, b: any) => {
-  if (a instanceof Array) return b instanceof Array ? a.every((x, i) => eq(x, b[i])) : false
+export const eq = (a: any, b: any): boolean => {
+  if (a instanceof Array) return b instanceof Array ? a.every((x, i) => eq(x, b[i])) && b.every((x, i) => eq(x, a[i])) : false
   return a === b
 }
 
@@ -40,11 +40,18 @@ export function deriveProgram(input: any, output: any, library: Library, limit =
 
 export function runProgram(program: Program, input: any): any {
   let output = input
-  console.log(`Running program on ${JSON.stringify(input)}`)
+  // console.log(`Running program on ${JSON.stringify(input)}`)
   for (const asst of program) {
     if (!asst.parent) continue // skip the root (no op)
     output = asst.op!.impl(output, ...asst.additionalParams)
-    console.log(`  ${asst.op?.name ?? '🌱'} => ${JSON.stringify(output)}`)
+    // console.log(`  ${asst.op?.name ?? '🌱'} => ${JSON.stringify(output)}`)
   }
   return output
+}
+
+export function concatPrograms(program1: Program, program2: Program): Program {
+  let secondHalf = program2.slice(1) // clip off the root
+  secondHalf[0].parent = program1.at(-1) // splice it to the output of the first program
+  program1.at(-1)!.children = [secondHalf[0], ...(program1.at(-1)!.children ?? [])]
+  return [...program1, ...secondHalf]
 }

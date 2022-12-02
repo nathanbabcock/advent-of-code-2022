@@ -52,6 +52,21 @@ export const Max: Op = {
   impl: (input: number[]) => Math.max(...input),
 }
 
+export const Slice: Op = {
+  name: 'slice',
+  type: z.function().args(z.array(z.any()), z.number()).returns(z.array(z.any())),
+  impl: (input: any[], limit: number) => input.slice(0, limit),
+  paramHints: [
+    (input: any[]) => Array.from({ length: input.length }, (_, i) => i) // [0..input.length]
+  ],
+}
+
+export const SortNum: Op = {
+  name: 'sort',
+  type: z.function().args(z.array(z.any())).returns(z.array(z.any())),
+  impl: (input: any[]) => [...input].sort((a, b) => b - a),
+}
+
 // TODO make Op a real Class
 export function opToString(op: Op): string {
   throw new Error('TODO')
