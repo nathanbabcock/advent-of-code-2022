@@ -53,6 +53,7 @@ export const Max: Op = {
   impl: (input: number[]) => Math.max(...input),
 }
 
-// export const Map: HigherOrderOp = (inputType, outputType) =>
-//   z.function().args(z.array(inputType), z.function().args(inputType).returns(outputType)).returns(z.array(outputType))
-
+// TODO make Op a real Class
+export function opToString(op: Op): string {
+  throw new Error('TODO')
+}
