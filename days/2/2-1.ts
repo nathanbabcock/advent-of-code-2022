@@ -1,0 +1,102 @@
+import { map } from 'zod'
+import { Combinator, Map } from '../../lib/combinator'
+import { Library } from '../../lib/library'
+import { Op, Split, Sum } from '../../lib/op'
+
+// Construct intermediate steps to help guide program synthesis
+const steps: any[] = []
+
+// example input
+steps.push('A Y\r\nB X\r\nC Z')
+
+// split(\r\n)
+steps.push(['A Y', 'B X', 'C Z'])
+
+// map(split(' '))
+steps.push([['A', 'Y'], ['B', 'X'], ['C', 'Z']])
+
+// 1. get value of YOUR move (array tail)
+// map(map(tail))
+// map(find(moves, 'alias2')) // 2 free params (1 from const library, 1 from keys)
+// map(getProp('score')) // free param from keys
+
+// 2. get score for outcome (entire array/tuple)
+// map(mapHead(find(moves, 'alias1')))
+// map(mapTail(find(moves, 'alias2')))
+// map(apply(getScore)) // spread array to function arguments
+
+/** 
+ * ```
+ * getScore: Op = ([theirMove, yourMove]) => 
+ *   if (eq(head(prop('name'))), tail(prop('name')), prop('draw', GameScore)),
+ *     // ... 2 more nested ternaries
+ *   )
+ *   if theirMove.name === yourMove.name => tie
+ *   if theirMove.name === yourMove.beats => win
+ *   else => draw
+ * }
+ * ```
+ * 
+ * Pain points:
+ * - Functions w/ multiple BOUND params (e.g. `eq`; binary Ops)
+ */
+
+
+
+
+// ...then sum those
+
+
+steps.push([[2, 6], [1, 0], [3, 3]])
+
+// ???
+steps.push([8, 1, 6])
+
+// sum
+steps.push(15) // example output
+
+// New feature since Day 1: "constants"
+// to encode some additional information from the problem statement
+
+const RPS: {
+  name: string
+  beats: string,
+  alias1: string,
+  alias2: string,
+  score: number,
+}[] = [
+    {
+      name: 'rock',
+      beats: 'scissors',
+      alias1: 'A',
+      alias2: 'X',
+      score: 1,
+    },
+    {
+      name: 'paper',
+      beats: 'rock',
+      alias1: 'B',
+      alias2: 'Y',
+      score: 2,
+    },
+    {
+      name: 'scissors',
+      beats: 'paper',
+      alias1: 'C',
+      alias2: 'Z',
+      score: 3,
+    },
+  ]
+
+// NB: No explicit mapping between `GameScore.win` and `RPS[i].beats`
+// (discovered during synthesis)
+const GameScore = {
+  win: 6,
+  draw: 3,
+  lose: 0,
+}
+
+// Minimal library of functions to use
+const ops: Op[] = [Split, Sum]
+const combinators: Combinator[] = [Map]
+const library = new Library(ops, combinators)
