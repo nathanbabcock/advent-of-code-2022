@@ -6,17 +6,16 @@ export type Program = ASST[] // Could be specified further that the output of ev
 
 /** Deep equality for arrays, objects, and primitives */
 export const eq = (a: any, b: any) => {
-  if (a instanceof Array) return a.every((x, i) => eq(x, b[i]))
+  if (a instanceof Array) return b instanceof Array ? a.every((x, i) => eq(x, b[i])) : false
   return a === b
 }
 
-export function deriveProgram(input: any, output: any, library: Library): Program {
+export function deriveProgram(input: any, output: any, library: Library, limit = 10000): Program {
   const queue: ASST[] = []
   const root = ASST.root(input)
   queue.push(root)
 
   let nodesChecked = 0
-  const limit = 1000
   let solutionNode: ASST | undefined
   console.log(`looking for ${JSON.stringify(output)}`)
   while (queue.length > 0 && ++nodesChecked < limit && !solutionNode) {
@@ -36,5 +35,6 @@ export function deriveProgram(input: any, output: any, library: Library): Progra
     else if (nodesChecked >= limit) console.error(`Limit of ${limit} nodes checked (queue length ${queue.length})`)
     throw new Error('No solution found')
   }
+  console.log(`Solution found after ${nodesChecked} nodes checked`)
   return solutionNode.trace()
 }

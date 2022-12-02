@@ -86,10 +86,10 @@ function main() {
   console.log('Library 📚 = ')
   console.log(library.getOps().map(op => op.name))
 
-  const input = ['100\n200', '300\n400']
-  const output = [['100', '200'], ['300', '400']]
-  // const input = steps[1]
-  // const output = steps[2]
+  // const input = ['100\n200', '300\n400']
+  // const output = [['100', '200'], ['300', '400']]
+  const input = steps[0]
+  const output = steps[5]
   const program = deriveProgram(input, output, library)
   console.log(`Program (length ${program.length}):`)
   program.forEach(asst => console.log('  ' + asst.toString()))
