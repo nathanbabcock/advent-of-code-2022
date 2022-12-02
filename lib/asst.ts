@@ -1,7 +1,8 @@
 import { z } from 'zod'
-import { Program } from './derive'
+import { Program } from './program'
 import { Library } from './library'
 import { Op } from './op'
+import { prettyPrint } from './util'
 
 /**
  * Abstract Syntax Search Tree 🍑🌲
@@ -84,7 +85,7 @@ export class ASST {
 
     // additional params
     if (this.additionalParams.length > 0)
-      str += `(${this.additionalParams.map(x => JSON.stringify(x)).join(', ')})`
+      str += `(${this.additionalParams.map(prettyPrint).join(', ')})`
 
     // return type & value
     str += ` -> ${JSON.stringify(this.value)}`

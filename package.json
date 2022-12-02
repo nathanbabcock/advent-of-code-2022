@@ -21,5 +21,8 @@
   "homepage": "https://github.com/nathanbabcock/advent-of-code-2022#readme",
   "dependencies": {
     "zod": "^3.19.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.10"
   }
 }

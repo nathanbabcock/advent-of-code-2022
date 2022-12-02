@@ -1,6 +1,5 @@
-import { Library } from './library'
 import { ASST } from './asst'
-import { Op } from './op'
+import { Library } from './library'
 
 export type Program = ASST[] // Could be specified further that the output of every function is first input of next function
 
@@ -37,4 +36,15 @@ export function deriveProgram(input: any, output: any, library: Library, limit =
   }
   console.log(`Solution found after ${nodesChecked} nodes checked`)
   return solutionNode.trace()
+}
+
+export function runProgram(program: Program, input: any): any {
+  let output = input
+  console.log(`Running program on ${JSON.stringify(input)}`)
+  for (const asst of program) {
+    if (!asst.parent) continue // skip the root (no op)
+    output = asst.op!.impl(output, ...asst.additionalParams)
+    console.log(`  ${asst.op?.name ?? '🌱'} => ${JSON.stringify(output)}`)
+  }
+  return output
 }

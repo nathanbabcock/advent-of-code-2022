@@ -1,26 +1,13 @@
+import { readFileSync } from 'fs'
 import { z } from 'zod'
-import { deriveProgram } from '../lib/derive'
-import { Char, Max, Op, Parse, Split, Sum } from '../lib/op'
 import { Combinator, Map } from '../lib/combinator'
 import { Library } from '../lib/library'
+import { Char, Max, Op, Parse, Split, Sum } from '../lib/op'
+import { deriveProgram, runProgram } from '../lib/program'
 
 const steps: any[] = []
 
-const input = `1000
-2000
-3000
-
-4000
-
-5000
-6000
-
-7000
-8000
-9000
-
-10000`
-
+const input = '1000\r\n2000\r\n3000\r\n\r\n4000\r\n\r\n5000\r\n6000\r\n\r\n7000\r\n8000\r\n9000\r\n\r\n10000'
 const output = 24000
 
 steps[0] = input
@@ -86,13 +73,21 @@ function main() {
   console.log('Library 📚 = ')
   console.log(library.getOps().map(op => op.name))
 
-  // const input = ['100\n200', '300\n400']
-  // const output = [['100', '200'], ['300', '400']]
+  // Training input/output (translated the problem description)
+  // In this case, no intermediate stepping stones were needed!
   const input = steps[0]
   const output = steps[5]
+
+  // Derive a program that solves the simplified example problem
   const program = deriveProgram(input, output, library)
   console.log(`Program (length ${program.length}):`)
   program.forEach(asst => console.log('  ' + asst.toString()))
+
+  // Run the derived program on the real problem input
+  const realInput = readFileSync('days/1.txt').toString()
+  const realAnswer = 71124
+  const answer = runProgram(program, realInput)
+  console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)
 }
 
 main()

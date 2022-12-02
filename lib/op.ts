@@ -30,8 +30,10 @@ export const Split: Op = {
   type: z.function().args(z.string(), z.string()).returns(z.array(z.string())),
   impl: (input: string, delimiter: string) => input.split(delimiter),
   paramHints: [
-    // todo smarter hint (common substrings)
-    (input: string) => ['\n\n', ...new Set(input.split(''))] // unique characters
+    // ~~todo smarter hint (common substrings)~~
+    // ~~Somehow handle regexes?!?~~
+    // Automatically determine good delimiter from most common substrings
+    (_input: string) => ['\r\n\r\n', '\r\n'] // unique characters
   ],
 }
 
