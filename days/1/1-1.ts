@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs'
-import { z } from 'zod'
 import { Combinator, Map } from '../lib/combinator'
 import { Library } from '../lib/library'
 import { Max, Op, Parse, Split, Sum } from '../lib/op'
