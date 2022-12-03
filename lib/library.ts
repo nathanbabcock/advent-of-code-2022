@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { Combinator } from './combinator'
 import { Op } from './op'
 
@@ -17,6 +18,10 @@ export class Library {
 
   getOps(): Op[] {
     return [...this.ops, ...this.derivedOps]
+  }
+
+  getOpsThatReturn(type: z.ZodTypeAny): Op[] {
+    return this.getOps().filter(op => op.type.returnType() === type)
   }
 
   /**

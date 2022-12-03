@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { Combinator } from './combinator'
 
+export type OpParams = [z.ZodTypeAny, ...z.ZodTypeAny[]]
+
 // Op types
 export type Op = {
   name: string
-  type: z.ZodFunction<z.ZodTuple<[z.ZodTypeAny, ...z.ZodTypeAny[]], z.ZodUnknown>, z.ZodTypeAny>
+  type: z.ZodFunction<z.ZodTuple<OpParams, z.ZodUnknown>, z.ZodTypeAny>
   impl: (...[args]: any[]) => any
   parents?: [Combinator, Op]
   children?: Op[]
