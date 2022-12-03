@@ -1,7 +1,8 @@
-import { map } from 'zod'
+import { table } from 'console'
 import { Combinator, Map } from '../../lib/combinator'
 import { Library } from '../../lib/library'
 import { Op, Split, Sum } from '../../lib/op'
+import { Table } from '../../lib/table'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -15,38 +16,9 @@ steps.push(['A Y', 'B X', 'C Z'])
 // map(split(' '))
 steps.push([['A', 'Y'], ['B', 'X'], ['C', 'Z']])
 
-// 1. get value of YOUR move (array tail)
-// map(map(tail))
-// map(find(moves, 'alias2')) // 2 free params (1 from const library, 1 from keys)
-// map(getProp('score')) // free param from keys
-
-// 2. get score for outcome (entire array/tuple)
-// map(mapHead(find(moves, 'alias1')))
-// map(mapTail(find(moves, 'alias2')))
-// map(apply(getScore)) // spread array to function arguments
-
-/** 
- * ```
- * getScore: Op = ([theirMove, yourMove]) => 
- *   if (eq(head(prop('name'))), tail(prop('name')), prop('draw', GameScore)),
- *     // ... 2 more nested ternaries
- *   )
- *   if theirMove.name === yourMove.name => tie
- *   if theirMove.name === yourMove.beats => win
- *   else => draw
- * }
- * ```
- * 
- * Pain points:
- * - Functions w/ multiple BOUND params (e.g. `eq`; binary Ops)
- */
-
-
-
+// TODO...
 
 // ...then sum those
-
-
 steps.push([[2, 6], [1, 0], [3, 3]])
 
 // ???
@@ -54,39 +26,6 @@ steps.push([8, 1, 6])
 
 // sum
 steps.push(15) // example output
-
-// New feature since Day 1: "constants"
-// to encode some additional information from the problem statement
-
-const RPS: {
-  name: string
-  beats: string,
-  alias1: string,
-  alias2: string,
-  score: number,
-}[] = [
-    {
-      name: 'rock',
-      beats: 'scissors',
-      alias1: 'A',
-      alias2: 'X',
-      score: 1,
-    },
-    {
-      name: 'paper',
-      beats: 'rock',
-      alias1: 'B',
-      alias2: 'Y',
-      score: 2,
-    },
-    {
-      name: 'scissors',
-      beats: 'paper',
-      alias1: 'C',
-      alias2: 'Z',
-      score: 3,
-    },
-  ]
 
 // NB: No explicit mapping between `GameScore.win` and `RPS[i].beats`
 // (discovered during synthesis)
@@ -100,3 +39,48 @@ const GameScore = {
 const ops: Op[] = [Split, Sum]
 const combinators: Combinator[] = [Map]
 const library = new Library(ops, combinators)
+
+// First solve a subproblem: determine who wins a single game of RPS
+// Build a table of inputs and outputs for this subproblem
+const getWinnerTable = new Table()
+getWinnerTable.rows.push({ inputs: ['r', 'r'], output: 'draw' })
+getWinnerTable.rows.push({ inputs: ['p', 'p'], output: 'draw' })
+getWinnerTable.rows.push({ inputs: ['s', 's'], output: 'draw' })
+getWinnerTable.rows.push({ inputs: ['r', 'p'], output: 'win' })
+getWinnerTable.rows.push({ inputs: ['p', 's'], output: 'win' })
+getWinnerTable.rows.push({ inputs: ['s', 'r'], output: 'win' })
+getWinnerTable.rows.push({ inputs: ['p', 'r'], output: 'lose' })
+getWinnerTable.rows.push({ inputs: ['s', 'p'], output: 'lose' })
+getWinnerTable.rows.push({ inputs: ['r', 's'], output: 'lose' })
+
+// Even a simple function implementation to this table is a bit complex.
+// It involves either nested branching, or a dictionary & modulo.
+// It could take a while to "blindly" try every combination of branch
+// condition, true case, false case, and then nested branches.
+// Instead, we'll do some analysis on the table to help guide synthesis.
+
+// Try combinations of predicates (one applied to input, one to output)
+// that map to corresponding subsets
+
+// Two parallel ASST trees;
+// - search inputs for next eligible predicate
+// - apply that predicate to all previously found output predicates (array of
+//   points into output predicate ASST)
+// - if the subsets match, record the predicates & the subset
+// - repeat for outputs (search outputs for next eligible predicate, apply to
+//   all previously found input predicates, record if subsets match)
+// - keep going until there's enough predicates to cover the entire table
+
+// Needed changes:
+// - ASST node needs to be able to take multiple parameters (binary ops)
+// - callback in ASST tree search (look for a boolean value instead of a
+//   specific output... or just look for either TRUE or FALSE)
+// - Recommend free param bindings from the full set of inputs or outputs
+
+// But first, start with an even simpler table
+// const simpleTable = new Table()
+// simpleTable.rows.push({ inputs: [-1], output: 1 })
+// simpleTable.rows.push({ inputs: [-2], output: 2 })
+// simpleTable.rows.push({ inputs: [1], output: -1 })
+// simpleTable.rows.push({ inputs: [2], output: -2 })
+// simpleTable.rows.push({ inputs: [0], output: 0 })
