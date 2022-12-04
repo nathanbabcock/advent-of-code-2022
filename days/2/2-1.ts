@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { Combinator, Map } from '../../lib/combinator'
 import { MakeChildrenCallback, Value } from '../../lib/digraph'
 import { Library } from '../../lib/library'
@@ -85,6 +86,6 @@ for (let i = 0; i < combinators.length * ops.length * 1; i++)
 // New digraph implementation:
 const digraph = new Value("1\r\n2\r\n3")
 const callback: MakeChildrenCallback = (value, arrow, novel) =>
-  console.log(`${arrow.op.name} => ${prettyPrint(value.value)} (${novel ? 'new' : 'old'})`)
+  console.log(`${arrow.op.name} => ${prettyPrint(value.value)} (${novel ? chalk.blue('new') : 'old'})`)
 digraph.makeChildren(library, callback)
 digraph.makeChildren(library, callback)
