@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { Library } from './library'
 import { Op } from './op'
 import { combinations, eq, prettyPrint } from './util'
@@ -108,6 +109,22 @@ export class Value {
       }
     }
   }
+
+  toStringShallow() {
+    return chalk.yellow(prettyPrint(this.value))
+  }
+
+  toStringDerivation(): string {
+    if (this.inArrows.length === 0) return this.toStringShallow()
+    return this.inArrows.map(a => a.toString()).join(chalk.gray(' OR '))
+  }
+
+  toString(): string {
+    const isLeaf = this.outArrows.length === 0
+    const isRoot = this.inArrows.length === 0
+    const icon = isLeaf ? ' 🍃' : isRoot ? ' 🌱' : ''
+    return `${this.toStringShallow()} ${chalk.gray('=')} ${this.toStringDerivation()}${icon}`
+  }
 }
 
 /**
@@ -128,6 +145,16 @@ export class Arrow {
     /** A single Value, resulting from calling the Op with the inputs */
     public output: Value,
   ) { }
+
+  /** Example: `add(0, 1) = 1` */
+  toStringShallow() {
+    return `${chalk.magenta(this.op.name)}(${this.inputs.map(i => i.toStringShallow()).join(', ')}) = ${this.output.toStringShallow()}`
+  }
+
+  /** Example: `add(input1(0), input2(1)) = 1` */
+  toString() {
+    return `${chalk.magenta(this.op.name)}(${this.inputs.map(i => i.toStringDerivation()).join(', ')})`
+  }
 }
 
 export type MakeChildrenCallback = (value: Value, arrow: Arrow, novel: boolean) => void | true
