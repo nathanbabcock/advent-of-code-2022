@@ -68,6 +68,23 @@ export class ASST2 { // 🍑☕2️⃣
     return cur
   }
 
+  // /**
+  //  * If a subtree for the given type already exists anywhere in the tree,
+  //  * return a reference to it for re-use.
+  //  * 
+  //  * This optimization helps parallelize the search, by sharing information
+  //  * about subtrees between disparate branches of the search tree.
+  //  */
+  // getSubtree(type: z.ZodTypeAny) {
+  //   const root = this.getRoot()
+  //   let subtree: ASST2 | undefined
+  //   root.traverse(node => {
+  //     if (node.op?.type.returnType() === type) 
+  //       subtree = node
+  //   })
+  //   return subtree
+  // }
+
   makeChild(op?: Op, value?: ASST2['value']): ASST2 {
     const child = new ASST2()
     child.parent = this
