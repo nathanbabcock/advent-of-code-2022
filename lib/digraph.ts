@@ -74,13 +74,13 @@ export class Value {
    */
   makeChildren(library: Library, callback: MakeChildrenCallback) {
     const ops = library.getOps()
+    let frozenValues = [...this.getRoot().collectValues()] // Only use Values that existed before this function was called
     for (const op of ops) {
       // Find all compatible values in the graph
       const parameterBindings = op.type.parameters().items.map((param, i) => {
         const possibleBindings: Value[] = []
-        this.getRoot().traverse(node =>
-          param.safeParse(node.value).success && possibleBindings.push(node)
-        )
+        frozenValues.filter(node => param.safeParse(node.value).success)
+          .forEach(value => possibleBindings.push(value))
 
         // Append any values recommended by `paramHints`
         possibleBindings.push(...op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? [])

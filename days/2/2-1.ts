@@ -82,6 +82,7 @@ const library = new Library(ops, combinators)
 // Pre-seed the library with augmented types (2 levels deep)
 for (let i = 0; i < combinators.length * ops.length * 1; i++)
   library.deriveNextOp()
+console.log(library.toString())
 
 // New digraph implementation:
 const digraph = new Value("1\r\n2\r\n3")

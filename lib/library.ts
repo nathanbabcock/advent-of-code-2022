@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { z } from 'zod'
 import { Combinator } from './combinator'
 import { Op } from './op'
@@ -45,6 +46,13 @@ export class Library {
       }
     }
     throw new Error('Could not derive another Op')
+  }
+
+  toString() {
+    let str = chalk.bgBlue(' 📚 Library \n')
+    str += chalk.blue(this.getOps().map(op => op.name).join('\n'))
+    str += '\n'
+    return str
   }
 
   constructor(ops: Op[], combinators: Combinator[] = []) {
