@@ -38,19 +38,26 @@ export class Value {
     return values
   }
 
+  /** Returns all Values and Arrows */
+  collect(): { values: Set<Value>, arrows: Set<Arrow> } {
+    const set = { values: new Set<Value>(), arrows: new Set<Arrow>() }
+    this.getRoot().traverse(node => set.values.add(node) && node.outArrows.forEach(a => set.arrows.add(a)))
+    return set
+  }
+
   /**
    * Check if the current node has an outgoing Arrow with the exact same Op and
    * binding positions.
    * 
    * ⚠ Warning: Copilot helped write this function 🥽
    */
-  hasOutArrow(op: Op, bindings: Value[]): boolean {
+  getOutArrow(op: Op, bindings: Value[]): Arrow | undefined {
     for (const arrow of this.outArrows) {
       if (arrow.op !== op) continue // ❕ comparison by reference
       if (arrow.inputs.length !== bindings.length) continue
-      if (arrow.inputs.every((input, i) => input === bindings[i])) return true
+      if (arrow.inputs.every((input, i) => input === bindings[i])) return arrow
     }
-    return false
+    return undefined
   }
 
   /** Retrieves an existing Value node for the given value, or creates one if needed */
@@ -84,8 +91,9 @@ export class Value {
       const bindings: Value[][] = combinations(parameterBindings)
       for (const binding of bindings) {
         // To be extra safe, check for pre-existing Arrow with this binding
-        if (binding[0].hasOutArrow(op, binding)) {
-          console.warn(`Attempted to create duplicate arrow: ${op.name}(${binding.map(b => b.value).map(prettyPrint).join(', ')})`)
+        let existingArrow = binding[0].getOutArrow(op, binding)
+        if (existingArrow) {
+          console.warn(chalk.gray(`Duplicate arrow: ${existingArrow.toString()})`))
           continue
         }
 
@@ -116,14 +124,15 @@ export class Value {
 
   toStringDerivation(): string {
     if (this.inArrows.length === 0) return this.toStringShallow()
-    return this.inArrows.map(a => a.toString()).join(chalk.gray(' OR '))
+    return this.inArrows.map(a => a.toString()).join(chalk.gray(' -OR- '))
   }
 
   toString(): string {
     const isLeaf = this.outArrows.length === 0
     const isRoot = this.inArrows.length === 0
-    const icon = isLeaf ? ' 🍃' : isRoot ? ' 🌱' : ''
-    return `${this.toStringShallow()} ${chalk.gray('=')} ${this.toStringDerivation()}${icon}`
+    let prefix = `${isRoot ? '🌱 ' : ''}${this.toStringShallow()}`
+    if (isRoot) return prefix
+    return `${prefix} ${chalk.gray('=')} ${this.toStringDerivation()}${isLeaf && !isRoot ? ' 🍃' : ''}`
   }
 }
 

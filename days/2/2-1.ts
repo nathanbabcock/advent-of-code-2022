@@ -87,5 +87,16 @@ for (let i = 0; i < combinators.length * ops.length * 1; i++)
 const digraph = new Value("1\r\n2\r\n3")
 const callback: MakeChildrenCallback = (value, arrow, novel) =>
   console.log(value.toString()) //  + (novel ? chalk.blue(' (new)') : ''))
-digraph.makeChildren(library, callback)
-digraph.makeChildren(library, callback)
+
+console.log(chalk.bgGreen(' Generation 0 '))
+console.log(digraph.toString())
+console.log(chalk.green('1 values, 0 arrows'))
+
+for (let generation = 1; generation <= 2; generation++) {
+  console.log()
+  console.log(chalk.bgGreen(` Generation ${generation} `))
+  digraph.makeChildren(library, callback)
+  let { arrows, values } = digraph.collect()
+  console.log(chalk.green(`${values.size} values, ${arrows.size} arrows`))
+}
+
