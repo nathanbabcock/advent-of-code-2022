@@ -11,14 +11,8 @@ export type Op = {
   parents?: [Combinator, Op]
   children?: Op[]
 
-  /**
-   * Given the input (first parameter) recommend a list of values for
-   * subsequent parameters.
-   * 
-   * `paramHints[0](input)` corresponds to the first *free* (non-input) parameter,
-   * and returns an array of possible recommended values.
-   */
-  paramHints?: ((input: any) => any[])[]
+  /** Recommend a set of literal values to use for each parameter. */
+  paramHints?: (((input: any) => any[]) | undefined)[]
 }
 
 // TODO
@@ -29,6 +23,7 @@ export const Split: Op = {
   type: z.function().args(z.string(), z.string()).returns(z.array(z.string())),
   impl: (input: string, delimiter: string) => input.split(delimiter),
   paramHints: [
+    undefined, // first param should be bound to the input
     // ~~todo smarter hint (common substrings)~~
     // ~~Somehow handle regexes?!?~~
     // Automatically determine good delimiter from most common substrings

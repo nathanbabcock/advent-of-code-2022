@@ -1,7 +1,7 @@
 export function prettyPrint(value: any): string {
   if (value instanceof RegExp)
     return value.toString()
-  if (isNaN(value)) return 'NaN'
+  if (Number.isNaN(value)) return 'NaN'
   return JSON.stringify(value)
 }
 
@@ -33,4 +33,12 @@ export function combinations(array2d: any[][], n = 0, result: any[][] = [], curr
   if (n === array2d.length) result.push(current)
   else array2d[n].forEach(item => combinations(array2d, n + 1, result, [...current, item]))
   return result
+}
+
+/** Deep equality for arrays, objects, and primitives */
+export const eq = (a: any, b: any): boolean => {
+  if (a instanceof Array) return b instanceof Array ? a.every((x, i) => eq(x, b[i])) && b.every((x, i) => eq(x, a[i])) : false
+  if (a instanceof Object) return b instanceof Object ? Object.keys(a).every(key => eq(a[key], b[key])) && Object.keys(b).every(key => eq(a[key], b[key])) : false
+  if (a.equals) return a.equals(b)
+  return a === b
 }

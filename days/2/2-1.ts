@@ -1,8 +1,9 @@
-import { table } from 'console'
 import { Combinator, Map } from '../../lib/combinator'
+import { MakeChildrenCallback, Value } from '../../lib/digraph'
 import { Library } from '../../lib/library'
-import { Op, Split, Sum } from '../../lib/op'
+import { Op, Parse, Split, Sum } from '../../lib/op'
 import { Table } from '../../lib/table'
+import { prettyPrint } from '../../lib/util'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -26,19 +27,6 @@ steps.push([8, 1, 6])
 
 // sum
 steps.push(15) // example output
-
-// NB: No explicit mapping between `GameScore.win` and `RPS[i].beats`
-// (discovered during synthesis)
-const GameScore = {
-  win: 6,
-  draw: 3,
-  lose: 0,
-}
-
-// Minimal library of functions to use
-const ops: Op[] = [Split, Sum]
-const combinators: Combinator[] = [Map]
-const library = new Library(ops, combinators)
 
 // First solve a subproblem: determine who wins a single game of RPS
 // Build a table of inputs and outputs for this subproblem
@@ -85,4 +73,18 @@ getWinnerTable.rows.push({ inputs: ['r', 's'], output: 'lose' })
 // simpleTable.rows.push({ inputs: [2], output: -2 })
 // simpleTable.rows.push({ inputs: [0], output: 0 })
 
+// Minimal library of functions to use
+const ops: Op[] = [Split, Parse, Sum]
+const combinators: Combinator[] = [Map]
+const library = new Library(ops, combinators)
+
+// Pre-seed the library with augmented types (2 levels deep)
+for (let i = 0; i < combinators.length * ops.length * 1; i++)
+  library.deriveNextOp()
+
 // New digraph implementation:
+const digraph = new Value("1\r\n2\r\n3")
+const callback: MakeChildrenCallback = (value, arrow, novel) =>
+  console.log(`${arrow.op.name} => ${prettyPrint(value.value)} (${novel ? 'new' : 'old'})`)
+digraph.makeChildren(library, callback)
+digraph.makeChildren(library, callback)

@@ -17,5 +17,5 @@ export const Map: Combinator = op => ({
   // and paramHints take input as a parameter,
   // wrap each paramHint in an adapter function that maps from the new input
   // type to the old one
-  paramHints: op.paramHints?.map(paramHintFn => (input: any[]) => [...new Set(...input.map(paramHintFn))]) // 🤯
+  paramHints: op.paramHints?.map(paramHintFn => (input: any[] | undefined) => [...new Set(...input?.map(paramHintFn!) ?? [])]) // 🤯
 })

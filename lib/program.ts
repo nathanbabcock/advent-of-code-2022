@@ -1,13 +1,8 @@
 import { ASST } from './asst'
 import { Library } from './library'
+import { eq } from './util'
 
 export type Program = ASST[] // Could be specified further that the output of every function is first input of next function
-
-/** Deep equality for arrays, objects, and primitives */
-export const eq = (a: any, b: any): boolean => {
-  if (a instanceof Array) return b instanceof Array ? a.every((x, i) => eq(x, b[i])) && b.every((x, i) => eq(x, a[i])) : false
-  return a === b
-}
 
 export function deriveProgram(input: any, output: any, library: Library, limit = 10000): Program {
   const queue: ASST[] = []
