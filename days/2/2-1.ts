@@ -84,3 +84,5 @@ getWinnerTable.rows.push({ inputs: ['r', 's'], output: 'lose' })
 // simpleTable.rows.push({ inputs: [1], output: -1 })
 // simpleTable.rows.push({ inputs: [2], output: -2 })
 // simpleTable.rows.push({ inputs: [0], output: 0 })
+
+// New digraph implementation:

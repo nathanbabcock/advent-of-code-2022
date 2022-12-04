@@ -24,6 +24,10 @@ export class Library {
     return this.getOps().filter(op => op.type.returnType() === type)
   }
 
+  getOpsCompatibleWith(value: any): Op[] {
+    return this.getOps().filter(op => op.type.safeParse(value).success)
+  }
+
   /**
    * Matches an Op and a Combinator to fall in love and produce a child 💖
    * The Op itself may have been derived from a previous pairing.

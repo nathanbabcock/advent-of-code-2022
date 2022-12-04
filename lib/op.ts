@@ -7,7 +7,7 @@ export type OpParams = [z.ZodTypeAny, ...z.ZodTypeAny[]]
 export type Op = {
   name: string
   type: z.ZodFunction<z.ZodTuple<OpParams, z.ZodUnknown>, z.ZodTypeAny>
-  impl: (...[args]: any[]) => any
+  impl: (...args: any) => any
   parents?: [Combinator, Op]
   children?: Op[]
 
