@@ -76,10 +76,6 @@ export class Value {
 
         // Append any values recommended by `paramHints`
         possibleBindings.push(...op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? [])
-
-        // TODO optimization: enforce that at least one parameter in the binding
-        // is currently a leaf node (otherwise, it's redundant and will probably
-        // trigger the warning case in `hasOutArrow`)
         return possibleBindings
       })
 
@@ -91,6 +87,11 @@ export class Value {
           console.warn(`Attempted to create duplicate arrow: ${op.name}(${binding.map(b => b.value).map(prettyPrint).join(', ')})`)
           continue
         }
+
+        // TODO optimization: enforce that at least one parameter in the binding
+        // is currently a leaf node (otherwise, it's redundant and will probably
+        // trigger the warning case in `hasOutArrow`)
+        // if (binding.every(b => b.outArrows.length > 0)) continue
 
         // Determine output and (al)locate a Value node for it
         const output = op.impl(...binding.map(b => b.value))
