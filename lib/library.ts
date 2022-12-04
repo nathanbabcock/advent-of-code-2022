@@ -49,7 +49,7 @@ export class Library {
   }
 
   toString() {
-    let str = chalk.bgBlue(' 📚 Library \n')
+    let str = chalk.bgBlue(' 📚 Library ') + ' (' + this.getOps().length + ')\n'
     str += chalk.blue(this.getOps().map(op => op.name).join('\n'))
     str += '\n'
     return str

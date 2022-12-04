@@ -55,7 +55,7 @@ export class Value {
     for (const arrow of this.outArrows) {
       if (arrow.op !== op) continue // ❕ comparison by reference
       if (arrow.inputs.length !== bindings.length) continue
-      if (arrow.inputs.every((input, i) => input === bindings[i])) return arrow
+      if (arrow.inputs.every((input, i) => eq(input.value, bindings[i].value))) return arrow
     }
     return undefined
   }
@@ -74,7 +74,14 @@ export class Value {
    */
   makeChildren(library: Library, callback: MakeChildrenCallback) {
     const ops = library.getOps()
-    let frozenValues = [...this.getRoot().collectValues()] // Only use Values that existed before this function was called
+
+    // Only use Values that existed before this function was called
+    let frozenValues = [...this.getRoot().collectValues()]
+      // ❕ optimization: enforce that only leaf nodes are used in the binding 
+      // (otherwise, it's redundant and will probably trigger the warning case
+      // in `hasOutArrow`) This might have unintended consequences...
+      .filter(v => v.outArrows.length === 0)
+
     for (const op of ops) {
       // Find all compatible values in the graph
       const parameterBindings = op.type.parameters().items.map((param, i) => {
@@ -93,14 +100,9 @@ export class Value {
         // To be extra safe, check for pre-existing Arrow with this binding
         let existingArrow = binding[0].getOutArrow(op, binding)
         if (existingArrow) {
-          console.warn(chalk.gray(`Duplicate arrow: ${existingArrow.toString()})`))
+          console.warn(chalk.gray(`Duplicate arrow: ${existingArrow.toString()}`))
           continue
         }
-
-        // TODO optimization: enforce that at least one parameter in the binding
-        // is currently a leaf node (otherwise, it's redundant and will probably
-        // trigger the warning case in `hasOutArrow`)
-        // if (binding.every(b => b.outArrows.length > 0)) continue
 
         // Determine output and (al)locate a Value node for it
         const output = op.impl(...binding.map(b => b.value))
@@ -124,7 +126,7 @@ export class Value {
 
   toStringDerivation(): string {
     if (this.inArrows.length === 0) return this.toStringShallow()
-    return this.inArrows.map(a => a.toString()).join(chalk.gray(' -OR- '))
+    return this.inArrows.map(a => a.toString()).join(chalk.gray('\n  = '))
   }
 
   toString(): string {

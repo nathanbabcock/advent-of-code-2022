@@ -93,7 +93,7 @@ console.log(chalk.bgGreen(' Generation 0 '))
 console.log(digraph.toString())
 console.log(chalk.green('1 values, 0 arrows'))
 
-for (let generation = 1; generation <= 2; generation++) {
+for (let generation = 1; generation <= 3; generation++) {
   console.log()
   console.log(chalk.bgGreen(` Generation ${generation} `))
   digraph.makeChildren(library, callback)
