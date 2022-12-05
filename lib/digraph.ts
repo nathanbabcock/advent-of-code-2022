@@ -3,6 +3,8 @@ import { Library } from './library'
 import { Op } from './op'
 import { combinations, eq, prettyPrint } from './util'
 
+const warn_duplicate = false
+
 /**
  * A node in the graph, corresponding to exactly one unique value (of any type).
  * Connected to other specific Values by one or more directed Arrows.
@@ -77,10 +79,12 @@ export class Value {
 
     // Only use Values that existed before this function was called
     let frozenValues = [...this.getRoot().collectValues()]
-      // ❕ optimization: enforce that only leaf nodes are used in the binding 
-      // (otherwise, it's redundant and will probably trigger the warning case
-      // in `hasOutArrow`) This might have unintended consequences...
-      .filter(v => v.outArrows.length === 0)
+    // ❕ optimization: enforce that only leaf nodes are used in the binding 
+    // (otherwise, it's redundant and will probably trigger the warning case
+    // in `hasOutArrow`) This might have unintended consequences...
+    // .filter(v => v.outArrows.length === 0 || v.inArrows.length === 0)
+    // allow root nodes to be re-used (also causes redundant applications of
+    // the input root, but that's okay...)
 
     for (const op of ops) {
       // Find all compatible values in the graph
@@ -89,8 +93,13 @@ export class Value {
         frozenValues.filter(node => param.safeParse(node.value).success)
           .forEach(value => possibleBindings.push(value))
 
+        const hints = op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? []
         // Append any values recommended by `paramHints`
-        possibleBindings.push(...op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? [])
+        if (op.name === 'map(split)') {
+          console.log('problematic hints:', op.paramHints?.[0]?.toString())
+        }
+
+        possibleBindings.push(...hints)
         return possibleBindings
       })
 
@@ -100,7 +109,7 @@ export class Value {
         // To be extra safe, check for pre-existing Arrow with this binding
         let existingArrow = binding[0].getOutArrow(op, binding)
         if (existingArrow) {
-          console.warn(chalk.gray(`Duplicate arrow: ${existingArrow.toString()}`))
+          if (warn_duplicate) console.warn(chalk.gray(`Duplicate arrow: ${existingArrow.toString()}`))
           continue
         }
 

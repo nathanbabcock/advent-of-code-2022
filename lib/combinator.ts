@@ -13,9 +13,7 @@ export const Map: Combinator = op => ({
     .returns(z.array(op.type.returnType())),
   impl: (input: any[], ...params) => input.map(x => op.impl(x, ...params)),
 
-  // since this combinator changes the input type,
-  // and paramHints take input as a parameter,
-  // wrap each paramHint in an adapter function that maps from the new input
-  // type to the old one
-  paramHints: op.paramHints?.map(paramHintFn => (input: any[] | undefined) => [...new Set(...input?.map(paramHintFn!) ?? [])]) // 🤯
+  // ⚠ `input` parameter stops working; this needs to be refactored out
+  // into a Library helper function or solved in another way
+  paramHints: op.paramHints,
 })

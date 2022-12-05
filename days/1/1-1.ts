@@ -1,9 +1,10 @@
+import chalk from 'chalk'
 import { readFileSync } from 'fs'
 import { Combinator, Map } from '../../lib/combinator'
 import { Library } from '../../lib/library'
 import { Max, Op, Parse, Split, Sum } from '../../lib/op'
-import { runProgram } from '../../lib/program'
 import { deriveProgramV2, runProgramV2 } from '../../lib/program-v2'
+import { eq } from '../../lib/util'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -60,12 +61,14 @@ const input = steps[0]
 const output = steps[5]
 
 // Derive a program that solves the simplified example problem
-const program = deriveProgramV2('1\r\n2\r\n3', 6, library) ?? process.exit(1)
-runProgramV2(program, '1\r\n2\r\n3\r\n4')
-
+const program = deriveProgramV2(steps[0], steps.at(-1), library) ?? process.exit(1)
 
 // Run the derived program on the real problem input
-// const realInput = readFileSync('days/1/1.txt').toString()
-// const realAnswer = 71124
-// const answer = runProgramV2(program, realInput)
-// console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)
+const realInput = readFileSync('days/1/1.txt').toString()
+const realAnswer = 71124
+const answer = runProgramV2(program, realInput)
+
+if (realAnswer !== undefined && eq(answer, realAnswer))
+  console.log(chalk.bgGreen(' CORRECT ⭐ '))
+else
+  console.log(chalk.bgRed(' WRONG 💩 '))
