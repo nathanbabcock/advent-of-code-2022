@@ -3,8 +3,16 @@ import { Arrow, MakeChildrenCallback, Value } from './digraph'
 import { Library } from './library'
 import { eq } from './util'
 
-export type ProgramV2 = Arrow[]
+/**
+ * A program is a (minimal, unique) subgraph from a single input Value to a
+ * single output Value (possible branching and re-merging in between).
+ */
+export type ProgramV2 = Value
 
+/**
+ * Search an Abstract Syntax Digraph for a mapping from a concrete input to a
+ * concrete output, given a library of functions
+ */
 export function deriveProgramV2(input: any, output: any, library: Library, maxGenerations = 10): ProgramV2 | undefined {
   const digraph = new Value(input)
   let answer: Value | undefined
@@ -44,5 +52,18 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
     return undefined
   }
 
-  return answer.getDerivation()
+  // 1. Get subgraph for unique derivation root -> answer
+  // 2. (probably) clone it
+  // 3. Have a method to reassign Value at the root, and propagate changes to
+  //    all descendants
+  return answer.getDerivationSubgraph()
+}
+
+/**
+ * Feed a new input value through a previously derived series of function
+ * compositions, returning the corresponding generated output.
+ */
+export function runProgramV2(program: ProgramV2, input: any) {
+  if (program.length === 0) return input
+  // return program[0].
 }

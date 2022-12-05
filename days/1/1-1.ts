@@ -2,7 +2,8 @@ import { readFileSync } from 'fs'
 import { Combinator, Map } from '../../lib/combinator'
 import { Library } from '../../lib/library'
 import { Max, Op, Parse, Split, Sum } from '../../lib/op'
-import { deriveProgram, runProgram } from '../../lib/program'
+import { runProgram } from '../../lib/program'
+import { deriveProgramV2, runProgramV2 } from '../../lib/program-v2'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -59,12 +60,14 @@ const input = steps[0]
 const output = steps[5]
 
 // Derive a program that solves the simplified example problem
-const program = deriveProgram(input, output, library)
-console.log(`Program (length ${program.length}):`)
-program.forEach(asst => console.log('  ' + asst.toString()))
+const program = deriveProgramV2('1\r\n2\r\n3', 6, library) ?? process.exit(1)
+
+console.log('subgraph size: ', program.collectValues().size)
+program.getRoot().traverse(node => console.log(node.toString()))
+
 
 // Run the derived program on the real problem input
-const realInput = readFileSync('days/1/1.txt').toString()
-const realAnswer = 71124
-const answer = runProgram(program, realInput)
-console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)
+// const realInput = readFileSync('days/1/1.txt').toString()
+// const realAnswer = 71124
+// const answer = runProgramV2(program, realInput)
+// console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)

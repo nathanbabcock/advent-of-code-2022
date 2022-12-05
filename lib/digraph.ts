@@ -124,9 +124,20 @@ export class Value {
    * Returns a unique derivation from the root Value to this Value,
    * to be used as a template Program for other input/output pairs.
    */
-  getDerivation(): Arrow[] {
-    if (this.inArrows.length === 0) return []
-    return [...this.inArrows[0].inputs[0].getDerivation(), this.inArrows[0]]
+  getDerivationSubgraph(): Value {
+    const clone = new Value(this.value)
+
+    // Base case (reached a root node)
+    if (this.inArrows.length === 0) return clone
+
+    // Choose a single derivation path to follow
+    const arrow = this.inArrows[0]
+    const clonedArrow = new Arrow(arrow.op, [], clone)
+    clonedArrow.inputs = arrow.inputs.map(input => input.getDerivationSubgraph())
+    clone.inArrows = [clonedArrow]
+    clonedArrow.inputs.forEach(input => input.outArrows.push(clonedArrow))
+
+    return clone
   }
 
   toStringShallow() {

@@ -83,5 +83,5 @@ for (let i = 0; i < combinators.length * ops.length * 1; i++)
   library.deriveNextOp()
 console.log(library.toString())
 
-const program = deriveProgramV2('1\r\n2\r\n3', 6, library)
-console.log(chalk.white('program length:', program?.length))
+// const program = deriveProgramV2('1\r\n2\r\n3', 6, library)
+// console.log(chalk.white('program length:', program?.length))
