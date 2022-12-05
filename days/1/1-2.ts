@@ -1,9 +1,7 @@
-import { Combinator } from '../../lib/combinator'
+import { Combinator, Map } from '../../lib/combinator'
 import { Library } from '../../lib/library'
-import { Op, Split, Parse, Sum, Max, Slice, SortNum } from '../../lib/op'
-import { Map } from '../../lib/combinator'
-import { concatPrograms, deriveProgram, runProgram } from '../../lib/program'
-import { readFileSync } from 'fs'
+import { Max, Op, Parse, Slice, SortNum, Split, Sum } from '../../lib/op'
+import { deriveProgramV2 } from '../../lib/program-v2'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -57,8 +55,7 @@ const library = new Library(ops, combinators)
 // Pre-seed the library with augmented types (2 levels deep)
 for (let i = 0; i < combinators.length * ops.length * 2; i++)
   library.deriveNextOp()
-console.log('Library 📚 = ')
-console.log(library.getOps().map(op => op.name))
+console.log(library.toString())
 
 // Training input/output (translated the problem description)
 // This time a middle step was needed -- without it, a valid program was derived
@@ -71,14 +68,14 @@ const output = steps.at(-1)
 console.log({ input, checkpoint, output })
 
 // Derive a program that solves the simplified example problem
-const program1 = deriveProgram(input, checkpoint, library)
-const program2 = deriveProgram(checkpoint, output, library)
-const program = concatPrograms(program1, program2)
-console.log(`Program (length ${program.length}):`)
-program.forEach(asst => console.log('  ' + asst.toString()))
+const program1 = deriveProgramV2(input, steps[2], library)
+// const program2 = deriveProgramV2(checkpoint, output, library)
+// const program = concatProgramsV2(program1, program2)
+// console.log(`Program (length ${program.length}):`)
+// program.forEach(asst => console.log('  ' + asst.toString()))
 
 // Run the derived program on the real problem input
-const realInput = readFileSync('days/1/1.txt').toString()
-const realAnswer = 204639
-const answer = runProgram(program, realInput)
-console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)
+// const realInput = readFileSync('days/1/1.txt').toString()
+// const realAnswer = 204639
+// const answer = runProgram(program, realInput)
+// console.log(`Answer: ${answer} ${answer === realAnswer ? '⭐' : '💩'}`)

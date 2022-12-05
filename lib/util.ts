@@ -1,8 +1,11 @@
 export function prettyPrint(value: any): string {
+  let str = ''
   if (value instanceof RegExp)
-    return value.toString()
-  if (Number.isNaN(value)) return 'NaN'
-  return JSON.stringify(value)
+    str = value.toString()
+  else if (Number.isNaN(value)) str = 'NaN'
+  else str = JSON.stringify(value)
+  // if (str.length > 10) str = str.slice(0, 10) + '...' + str.charAt(str.length - 1)
+  return str
 }
 
 /**

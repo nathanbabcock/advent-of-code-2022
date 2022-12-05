@@ -29,8 +29,13 @@ export class Value {
   /** Depth-first in-order traversal of the sub-graph. ⚠ Beware of cycles. */
   traverse(callback: (node: Value) => void) {
     callback(this)
-    for (const arrow of this.outArrows)
+    for (const arrow of this.outArrows) {
+      if (arrow.inputs.includes(arrow.output)) continue
+      // ⚠ Aborts shallow cycles
+      // Indirect cycles can still happen!
+
       arrow.output.traverse(callback)
+    }
   }
 
   /** Returns a list of every Value discovered in this Digraph */
@@ -93,12 +98,8 @@ export class Value {
         frozenValues.filter(node => param.safeParse(node.value).success)
           .forEach(value => possibleBindings.push(value))
 
-        const hints = op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? []
         // Append any values recommended by `paramHints`
-        if (op.name === 'map(split)') {
-          console.log('problematic hints:', op.paramHints?.[0]?.toString())
-        }
-
+        const hints = op.paramHints?.[i]?.(undefined).map(this.allocateValue.bind(this)) ?? []
         possibleBindings.push(...hints)
         return possibleBindings
       })
@@ -213,7 +214,11 @@ export class Arrow {
 
   /** Example: `add(input1(0), input2(1)) = 1` */
   toString() {
-    return `${chalk.magenta(this.op.name)}(${this.inputs.map(i => i.toStringDerivation()).join(', ')})`
+    return `${chalk.magenta(this.op.name)}(${this.inputs.map(i => {
+      if (this.inputs.includes(i) || this.output === i)
+        return i.toStringShallow()
+      return i.toStringDerivation()
+    }).join(', ')})`
   }
 }
 

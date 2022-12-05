@@ -66,12 +66,13 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
 export function runProgramV2(program: ProgramV2, input: any): any {
   // console.log(chalk.bgWhite(' Run program '), chalk.white(`input=${input}`))
   console.log(chalk.bgGreen(' Run program '))
+  console.log('...')
 
   program.applyValue(input)
 
   let output: Value | undefined
   program.traverse(node => {
-    console.log(node.toString())
+    // console.log(node.toString()) // way too much output
     if (node.outArrows.length === 0)
       output = node // ❕ assumes a single leaf node
   })

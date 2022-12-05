@@ -54,7 +54,8 @@ export const Slice: Op = {
   type: z.function().args(z.array(z.any()), z.number()).returns(z.array(z.any())),
   impl: (input: any[], limit: number) => input.slice(0, limit),
   paramHints: [
-    (input: any[]) => Array.from({ length: input.length }, (_, i) => i) // [0..input.length]
+    undefined, // first param should be bound to the input
+    (_input: any[]) => [5] // TODO hardcoded, should come from `library`
   ],
 }
 
