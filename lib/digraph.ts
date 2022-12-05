@@ -120,6 +120,15 @@ export class Value {
     }
   }
 
+  /**
+   * Returns a unique derivation from the root Value to this Value,
+   * to be used as a template Program for other input/output pairs.
+   */
+  getDerivation(): Arrow[] {
+    if (this.inArrows.length === 0) return []
+    return [...this.inArrows[0].inputs[0].getDerivation(), this.inArrows[0]]
+  }
+
   toStringShallow() {
     return chalk.yellow(prettyPrint(this.value))
   }

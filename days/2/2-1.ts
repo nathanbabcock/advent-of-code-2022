@@ -1,10 +1,9 @@
 import chalk from 'chalk'
 import { Combinator, Map } from '../../lib/combinator'
-import { MakeChildrenCallback, Value } from '../../lib/digraph'
 import { Library } from '../../lib/library'
 import { Op, Parse, Split, Sum } from '../../lib/op'
+import { deriveProgramV2 } from '../../lib/program-v2'
 import { Table } from '../../lib/table'
-import { prettyPrint } from '../../lib/util'
 
 // Construct intermediate steps to help guide program synthesis
 const steps: any[] = []
@@ -79,25 +78,10 @@ const ops: Op[] = [Split, Parse, Sum]
 const combinators: Combinator[] = [Map]
 const library = new Library(ops, combinators)
 
-// Pre-seed the library with augmented types (2 levels deep)
+// Pre-seed the library with augmented types
 for (let i = 0; i < combinators.length * ops.length * 1; i++)
   library.deriveNextOp()
 console.log(library.toString())
 
-// New digraph implementation:
-const digraph = new Value("1\r\n2\r\n3")
-const callback: MakeChildrenCallback = (value, arrow, novel) =>
-  console.log(value.toString()) //  + (novel ? chalk.blue(' (new)') : ''))
-
-console.log(chalk.bgGreen(' Generation 0 '))
-console.log(digraph.toString())
-console.log(chalk.green('1 values, 0 arrows'))
-
-for (let generation = 1; generation <= 3; generation++) {
-  console.log()
-  console.log(chalk.bgGreen(` Generation ${generation} `))
-  digraph.makeChildren(library, callback)
-  let { arrows, values } = digraph.collect()
-  console.log(chalk.green(`${values.size} values, ${arrows.size} arrows`))
-}
-
+const program = deriveProgramV2('1\r\n2\r\n3', 6, library)
+console.log(chalk.white('program length:', program?.length))
