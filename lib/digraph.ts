@@ -140,6 +140,26 @@ export class Value {
     return clone
   }
 
+  /**
+   * Modify the value stored in this node, and propagate the changes to all
+   * downstream/derived Values.
+   * 
+   * NB: After calling this function, it is no longer guaranteed that Value nodes
+   * are unique (although they will still be correct, just possible redundant).
+   */
+  applyValue(value: any) {
+    this.value = value
+    for (const outArrow of this.outArrows) {
+      const newOutputValue = outArrow.op.impl(
+        ...outArrow.inputs.map(input => input.value)
+        // one of these inputs is the value we just updated;
+        // others are unchanged (or already derived from the updated one)
+        // Independent inputs, like literals, remain unchanged by this application
+      )
+      outArrow.output.applyValue(newOutputValue)
+    }
+  }
+
   toStringShallow() {
     return chalk.yellow(prettyPrint(this.value))
   }

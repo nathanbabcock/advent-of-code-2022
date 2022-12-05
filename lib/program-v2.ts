@@ -35,13 +35,7 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
     let { arrows, values } = digraph.collect()
     console.log(chalk.green(`${values.size} values, ${arrows.size} arrows`))
 
-    if (answer) {
-      console.log()
-      console.log(chalk.bgCyan(' Answer ⭐ '))
-      console.log(answer.toString())
-      console.log()
-      break
-    }
+    if (answer) break
   }
 
   if (!answer) {
@@ -52,18 +46,48 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
     return undefined
   }
 
-  // 1. Get subgraph for unique derivation root -> answer
-  // 2. (probably) clone it
-  // 3. Have a method to reassign Value at the root, and propagate changes to
-  //    all descendants
-  return answer.getDerivationSubgraph()
+  console.log()
+  console.log(chalk.bgCyan(' Derivation output ⭐ '))
+  console.log(answer.toString())
+
+  const program = answer.getDerivationSubgraph().getRoot()
+  console.log()
+  console.log(chalk.bgGreen(' Program '))
+  program.traverse(node => console.log(node.toString()))
+  console.log()
+
+  return program
 }
 
 /**
  * Feed a new input value through a previously derived series of function
  * compositions, returning the corresponding generated output.
  */
-export function runProgramV2(program: ProgramV2, input: any) {
-  if (program.length === 0) return input
-  // return program[0].
+export function runProgramV2(program: ProgramV2, input: any): any {
+  // console.log(chalk.bgWhite(' Run program '), chalk.white(`input=${input}`))
+  console.log(chalk.bgGreen(' Run program '))
+
+  program.applyValue(input)
+
+  let output: Value | undefined
+  program.traverse(node => {
+    console.log(node.toString())
+    if (node.outArrows.length === 0)
+      output = node // ❕ assumes a single leaf node
+  })
+
+  if (!output) {
+    console.log()
+    console.log(chalk.bgRed(' Error '))
+    console.log(chalk.red('Could not find output'))
+    console.log()
+    return undefined
+  }
+
+  console.log()
+  console.log(chalk.bgCyan(' Answer ⭐ '))
+  console.log(output.toStringShallow())
+  console.log()
+
+  return output.value
 }

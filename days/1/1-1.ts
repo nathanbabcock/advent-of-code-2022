@@ -52,7 +52,7 @@ const library = new Library(ops, combinators)
 for (let i = 0; i < combinators.length * ops.length * 2; i++)
   library.deriveNextOp()
 console.log('Library 📚 = ')
-console.log(library.getOps().map(op => op.name))
+console.log(library.toString())
 
 // Training input/output (translated the problem description)
 // In this case, no intermediate stepping stones were needed!
@@ -61,9 +61,7 @@ const output = steps[5]
 
 // Derive a program that solves the simplified example problem
 const program = deriveProgramV2('1\r\n2\r\n3', 6, library) ?? process.exit(1)
-
-console.log('subgraph size: ', program.collectValues().size)
-program.getRoot().traverse(node => console.log(node.toString()))
+runProgramV2(program, '1\r\n2\r\n3\r\n4')
 
 
 // Run the derived program on the real problem input
