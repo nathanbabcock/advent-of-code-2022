@@ -42,9 +42,14 @@ const stacks = [
   ['Z', 'G', 'W', 'L', 'F', 'P', 'R']
 ]
 
+// Part 1
+// for (const move of moves)
+//   for (let i = 0; i < move.move; i++)
+//     stacks[move.to - 1].unshift(stacks[move.from - 1].shift()!)
+
+// Part 2
 for (const move of moves)
-  for (let i = 0; i < move.move; i++)
-    stacks[move.to - 1].unshift(stacks[move.from - 1].shift()!)
+  stacks[move.to - 1] = [...stacks[move.from - 1].splice(0, move.move), ...stacks[move.to - 1]]
 
 let msg = ''
 for (const stack of stacks)
