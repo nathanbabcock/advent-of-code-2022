@@ -55,7 +55,7 @@ export const Slice: Op = {
   impl: (input: any[], limit: number) => input.slice(0, limit),
   paramHints: [
     undefined, // first param should be bound to the input
-    (_input: any[]) => [5] // TODO hardcoded, should come from `library`
+    (_input: any[]) => [3] // TODO hardcoded, should come from `library`
   ],
 }
 

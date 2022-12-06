@@ -68,7 +68,15 @@ const output = steps.at(-1)
 console.log({ input, checkpoint, output })
 
 // Derive a program that solves the simplified example problem
-const program1 = deriveProgramV2(input, steps[2], library)
+// const program1 = deriveProgramV2(input, checkpoint, library)
+const program2 = deriveProgramV2(checkpoint, output, library)
+
+
+// New ability: wrap a Program (V2) into an Op
+// Stick it back in the library
+// Derive composed versions of it
+// Run the next segment of the program
+
 // const program2 = deriveProgramV2(checkpoint, output, library)
 // const program = concatProgramsV2(program1, program2)
 // console.log(`Program (length ${program.length}):`)

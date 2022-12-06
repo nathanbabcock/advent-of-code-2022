@@ -1,7 +1,8 @@
 import chalk from 'chalk'
-import { Arrow, MakeChildrenCallback, Value } from './digraph'
+import { Digraph } from './digraph'
 import { Library } from './library'
 import { eq } from './util'
+import { Value, MakeChildrenCallback as OnChildCreated } from './value'
 
 /**
  * A program is a (minimal, unique) subgraph from a single input Value to a
@@ -14,9 +15,9 @@ export type ProgramV2 = Value
  * concrete output, given a library of functions
  */
 export function deriveProgramV2(input: any, output: any, library: Library, maxGenerations = 10): ProgramV2 | undefined {
-  const digraph = new Value(input)
+  const digraph = new Digraph(input)
   let answer: Value | undefined
-  const callback: MakeChildrenCallback = node => {
+  const callback: OnChildCreated = node => {
     console.log(node.toString())
     if (eq(node.value, output)) {
       answer = node
@@ -31,9 +32,8 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
   for (let generation = 1; generation <= maxGenerations; generation++) {
     console.log()
     console.log(chalk.bgGreen(` Generation ${generation} `))
-    digraph.makeChildren(library, callback)
-    let { arrows, values } = digraph.collect()
-    console.log(chalk.green(`${values.size} values, ${arrows.size} arrows`))
+    digraph.root.makeChildren(library, callback)
+    console.log(chalk.green(`${digraph.values.length} values, ${digraph.arrows.length} arrows`))
 
     if (answer) break
   }
@@ -53,7 +53,7 @@ export function deriveProgramV2(input: any, output: any, library: Library, maxGe
   const program = answer.getDerivationSubgraph().getRoot()
   console.log()
   console.log(chalk.bgGreen(' Program '))
-  program.traverse(node => console.log(node.toString()))
+  program.values.forEach(value => console.log(value.toString()))
   console.log()
 
   return program
