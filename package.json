@@ -7,7 +7,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "today": "vite-node days/1/1-2.ts"
+    "today": "vite-node days/6/6-1.ts"
   },
   "repository": {
     "type": "git",
