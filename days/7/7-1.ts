@@ -45,8 +45,7 @@ function getSize(path: string[], dirs: Dir[]): number {
     .reduce((acc, dir) => acc + dir.size, 0)
 }
 
-function solveImperative(input: string): number {
-  const lines = input.split(/\r?\n/)
+function getFilesImperative(lines: string[]): File[] {
   const files: File[] = []
   let curPath: string[] = []
 
@@ -69,9 +68,10 @@ function solveImperative(input: string): number {
     }
     trace.push([...curPath])
   }
+  return files
+}
 
-  // console.log(files.map(f => f.path.join('/').slice(1) + '/' + f.name))
-
+function getDirsImperative(files: File[]): Dir[] {
   const dirs: Dir[] = []
   for (const file of files) {
     let dir = dirs.find(dir => dir.path.every((p, i) => p === file.path[i]) && dir.path.length === file.path.length)
@@ -94,18 +94,19 @@ function solveImperative(input: string): number {
         dirs.push({ path: [...subPath], size: 0 })
     }
   }
+  return dirs
+}
 
-
+function solvePart1Imperative(dirs: Dir[]): number {
   // This sort is unneccessary, but this could be a starting point for a recursive solution
   dirs.sort((a, b) => a.path.length - b.path.length)
   const mapped = dirs.map(dir => getSize(dir.path, dirs))
   const filtered = mapped.filter(size => size <= 100000)
   const sum = filtered.reduce((acc, size) => acc + size, 0)
+  return sum
+}
 
-  // Part 1 Answer:
-  // return sum
-
-  // Part 2 Answer:
+function solvePart2Imperative(dirs: Dir[], files: File[]): number {
   const totalSpace = 70_000_000
   const requiredSpace = 30_000_000
   const usedSpace = files.reduce((acc, file) => acc + file.size, 0)
@@ -115,6 +116,17 @@ function solveImperative(input: string): number {
     .filter(dir => dir.size >= spaceToFree)
     .sort((a, b) => a.size - b.size)[0].size
 }
+
+function solveImperative(input: string) {
+  const lines = input.split(/\r?\n/)
+  const files = getFilesImperative(lines)
+  const dirs = getDirsImperative(files)
+  const part1 = solvePart1Imperative(dirs)
+  const part2 = solvePart2Imperative(dirs, files)
+  console.log({ part1, part2 })
+}
+
+/// Declarative solution -----
 
 function getFilesFunctional(lines: string[], files: File[] = [], curPath: string[] = []): File[] {
   return lines.length === 0
@@ -177,13 +189,13 @@ function solveFunctional(input: string): number {
     .sort((a, b) => a.size - b.size)[0].size
 }
 
-const solve = solveFunctional
+const solve = solveImperative
 
-console.log(chalk.bgGreen(' Part 1 test input '))
-console.log(solve(testInput))
+console.log(chalk.bgGreen(' Test input (both parts) '))
+solve(testInput)
 console.log()
 
 const realInput = readFileSync('days/7/7.txt').toString()
-console.log(chalk.bgGreen(' Part 1 real input '))
-console.log(solve(realInput))
+console.log(chalk.bgGreen(' Real input (both parts) '))
+solve(realInput)
 console.log()
