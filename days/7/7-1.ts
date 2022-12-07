@@ -128,6 +128,7 @@ function solveImperative(input: string) {
 
 /// Declarative solution -----
 
+// because one-liners are turing-complete, and why not 🎉
 const getFilesFunctional = (lines: string[], files: File[] = [], curPath: string[] = []): File[] =>
   lines.length === 0
     ? files // base case
@@ -141,11 +142,60 @@ const getFilesFunctional = (lines: string[], files: File[] = [], curPath: string
         ? ((parts: [string, string]) => getFilesFunctional(otherLines, [...files, { path: [...curPath], name: parts[1], size: parseInt(parts[0]) }], curPath))(line.split(' ') as [string, string])
         : getFilesFunctional(otherLines, files, curPath))(lines[0], lines.slice(1)) // ...(head(lines), tail(lines))
 
+const getDirsFunctional = (files: File[], dirs: Dir[] = []): Dir[] => files.length === 0
+  ? dirs // base case
+  : ((file: File, remainingFiles: File[]) =>
+    getDirsFunctional(
+      remainingFiles,
+      ((existingDir: Dir): Dir[] => [ // add file size to dir
+        { path: existingDir.path, size: existingDir.size + file.size },
+        ...dirs.filter(dir => dir !== existingDir),
+      ])( // find existing dir or create it
+        dirs.find(dir =>
+          dir.path.every((p, i) =>
+            p === file.path[i]
+          ) && dir.path.length === file.path.length
+        ) ?? { path: [...file.path], size: 0 }))
+  )(files[0], files.slice(1))
+
+const addEmptyDirs = (dirs: Dir[], allDirs = dirs): Dir[] =>
+  dirs.length === 0
+    ? allDirs // base case
+    : ((dir, remainingDirs) => // loop over dirs
+      addEmptyDirs(remainingDirs, // (top-level) recursion
+        // get all subpaths
+        ((subPathFn: any) => subPathFn(dir.path, allDirs, subPathFn)) // insanity; calling a function with a ref to itself
+          ((subPath: string[], dirs: Dir[], subPathFn: (subPath: string[], dirs: Dir[], subPathFn: any) => Dir[]) =>
+            subPath.length === 0
+              ? dirs // base case
+              : dirs.some(dir => dir.path.every((p, i) => p === subPath[i]) && dir.path.length === subPath.length)
+                ? subPathFn(subPath.slice(0, -1), dirs, subPathFn) // already have a dir for this path
+                : subPathFn(subPath.slice(0, -1), [...dirs, { path: [...subPath], size: 0 }], subPathFn) // missing dir; add one
+          )
+      )
+    )(dirs[0], dirs.slice(1))
+
+// !!! Edge case that worked for test input, but not real input:
+// Folders with no files inside them (only nested folders)
+// The above block doesn't count any of these (since they have "intrisic" size 0)
+// But they should be included in the whole list.
+// We add them here:
+
+// for (const dir of dirs) {
+//   for (let i = 0; i < dir.path.length; i++) {
+//     const subPath = dir.path.slice(0, i)
+//     if (!dirs.some(dir => dir.path.every((p, i) => p === subPath[i]) && dir.path.length === subPath.length))
+//       dirs.push({ path: [...subPath], size: 0 })
+//   }
+// }
+
 function solveFunctional(input: string) {
   const files = getFilesFunctional(input.split(/\r?\n/))
 
   // bootstrap with imperative modules the rest of the way
-  const dirs = getDirsImperative(files)
+  const dirs = addEmptyDirs(getDirsFunctional(files))
+
+  // console.log(dirs)
   const part1 = solvePart1Imperative(dirs)
   const part2 = solvePart2Imperative(dirs, files)
   console.log({ part1, part2 })
