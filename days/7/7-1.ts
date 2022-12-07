@@ -128,68 +128,30 @@ function solveImperative(input: string) {
 
 /// Declarative solution -----
 
-function getFilesFunctional(lines: string[], files: File[] = [], curPath: string[] = []): File[] {
-  return lines.length === 0
+const getFilesFunctional = (lines: string[], files: File[] = [], curPath: string[] = []): File[] =>
+  lines.length === 0
     ? files // base case
-    : lines[0].startsWith('$ cd ') // recursive case
-      ? lines[0].slice(5) === '..'
-        ? getFilesFunctional(lines.slice(1), files, curPath.slice(0, -1))
-        : lines[0].slice(5) === '/'
-          ? getFilesFunctional(lines.slice(1), files, ['/'])
-          : getFilesFunctional(lines.slice(1), files, [...curPath, lines[0].slice(5)])
-      : !Number.isNaN(parseInt(lines[0].split(' ')[0]))
-        ? getFilesFunctional(lines.slice(1), [...files, { path: [...curPath], name: lines[0].split(' ')[1], size: parseInt(lines[0].split(' ')[0]) }], curPath)
-        : getFilesFunctional(lines.slice(1), files, curPath)
-}
+    : ((line: string, otherLines: string[]) => line.startsWith('$ cd ') // recursive case, using IIFE to avoid repeating "lines[0]"
+      ? ((newPath: string) => newPath === '..' // iffy IIFE again
+        ? getFilesFunctional(otherLines, files, curPath.slice(0, -1))
+        : newPath === '/'
+          ? getFilesFunctional(otherLines, files, ['/'])
+          : getFilesFunctional(otherLines, files, [...curPath, newPath]))(line.slice(5))
+      : !Number.isNaN(parseInt(line.charAt(0)))
+        ? ((parts: [string, string]) => getFilesFunctional(otherLines, [...files, { path: [...curPath], name: parts[1], size: parseInt(parts[0]) }], curPath))(line.split(' ') as [string, string])
+        : getFilesFunctional(otherLines, files, curPath))(lines[0], lines.slice(1)) // ...(head(lines), tail(lines))
 
-function solveFunctional(input: string): number {
+function solveFunctional(input: string) {
   const files = getFilesFunctional(input.split(/\r?\n/))
 
-  const dirs: Dir[] = []
-  for (const file of files) {
-    let dir = dirs.find(dir => dir.path.every((p, i) => p === file.path[i]) && dir.path.length === file.path.length)
-    if (!dir) {
-      dir = { path: [...file.path], size: 0 }
-      dirs.push(dir)
-    }
-    dir.size += file.size
-  }
-
-  // !!! Edge case that worked for test input, but not real input:
-  // Folders with no files inside them (only nested folders)
-  // The above block doesn't count any of these (since they have "intrisic" size 0)
-  // But they should be included in the whole list.
-  // We add them here:
-  for (const dir of dirs) {
-    for (let i = 0; i < dir.path.length; i++) {
-      const subPath = dir.path.slice(0, i)
-      if (!dirs.some(dir => dir.path.every((p, i) => p === subPath[i]) && dir.path.length === subPath.length))
-        dirs.push({ path: [...subPath], size: 0 })
-    }
-  }
-
-
-  // This sort is unneccessary, but this could be a starting point for a recursive solution
-  dirs.sort((a, b) => a.path.length - b.path.length)
-  const mapped = dirs.map(dir => getSize(dir.path, dirs))
-  const filtered = mapped.filter(size => size <= 100000)
-  const sum = filtered.reduce((acc, size) => acc + size, 0)
-
-  // Part 1 Answer:
-  // return sum
-
-  // Part 2 Answer:
-  const totalSpace = 70_000_000
-  const requiredSpace = 30_000_000
-  const usedSpace = files.reduce((acc, file) => acc + file.size, 0)
-  const freeSpace = totalSpace - usedSpace
-  const spaceToFree = requiredSpace - freeSpace
-  return dirs.map(dir => ({ path: dir.path, size: getSize(dir.path, dirs) }))
-    .filter(dir => dir.size >= spaceToFree)
-    .sort((a, b) => a.size - b.size)[0].size
+  // bootstrap with imperative modules the rest of the way
+  const dirs = getDirsImperative(files)
+  const part1 = solvePart1Imperative(dirs)
+  const part2 = solvePart2Imperative(dirs, files)
+  console.log({ part1, part2 })
 }
 
-const solve = solveImperative
+const solve = solveFunctional
 
 console.log(chalk.bgGreen(' Test input (both parts) '))
 solve(testInput)
