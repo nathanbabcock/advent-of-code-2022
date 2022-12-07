@@ -95,17 +95,25 @@ function solveImperative(input: string): number {
     }
   }
 
+
   // This sort is unneccessary, but this could be a starting point for a recursive solution
   dirs.sort((a, b) => a.path.length - b.path.length)
-
   const mapped = dirs.map(dir => getSize(dir.path, dirs))
   const filtered = mapped.filter(size => size <= 100000)
   const sum = filtered.reduce((acc, size) => acc + size, 0)
 
-  // console.log({ dirs: dirs.map(dir => dir.path.join(',')), mapped, filtered, sum })
-  // console.log(files)
+  // Part 1 Answer:
+  // return sum
 
-  return sum
+  // Part 2 Answer:
+  const totalSpace = 70_000_000
+  const requiredSpace = 30_000_000
+  const usedSpace = files.reduce((acc, file) => acc + file.size, 0)
+  const freeSpace = totalSpace - usedSpace
+  const spaceToFree = requiredSpace - freeSpace
+  return dirs.map(dir => ({ path: dir.path, size: getSize(dir.path, dirs) }))
+    .filter(dir => dir.size >= spaceToFree)
+    .sort((a, b) => a.size - b.size)[0].size
 }
 
 const solve = solveImperative
