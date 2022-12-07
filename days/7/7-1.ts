@@ -142,21 +142,22 @@ const getFilesFunctional = (lines: string[], files: File[] = [], curPath: string
         ? ((parts: [string, string]) => getFilesFunctional(otherLines, [...files, { path: [...curPath], name: parts[1], size: parseInt(parts[0]) }], curPath))(line.split(' ') as [string, string])
         : getFilesFunctional(otherLines, files, curPath))(lines[0], lines.slice(1)) // ...(head(lines), tail(lines))
 
-const getDirsFunctional = (files: File[], dirs: Dir[] = []): Dir[] => files.length === 0
-  ? dirs // base case
-  : ((file: File, remainingFiles: File[]) =>
-    getDirsFunctional(
-      remainingFiles,
-      ((existingDir: Dir): Dir[] => [ // add file size to dir
-        { path: existingDir.path, size: existingDir.size + file.size },
-        ...dirs.filter(dir => dir !== existingDir),
-      ])( // find existing dir or create it
-        dirs.find(dir =>
-          dir.path.every((p, i) =>
-            p === file.path[i]
-          ) && dir.path.length === file.path.length
-        ) ?? { path: [...file.path], size: 0 }))
-  )(files[0], files.slice(1))
+const getDirsFunctional = (files: File[], dirs: Dir[] = []): Dir[] =>
+  files.length === 0
+    ? dirs // base case
+    : ((file: File, remainingFiles: File[]) =>
+      getDirsFunctional(
+        remainingFiles,
+        ((existingDir: Dir): Dir[] => [ // add file size to dir
+          { path: existingDir.path, size: existingDir.size + file.size },
+          ...dirs.filter(dir => dir !== existingDir),
+        ])( // find existing dir or create it
+          dirs.find(dir =>
+            dir.path.every((p, i) =>
+              p === file.path[i]
+            ) && dir.path.length === file.path.length
+          ) ?? { path: [...file.path], size: 0 }))
+    )(files[0], files.slice(1))
 
 const addEmptyDirs = (dirs: Dir[], allDirs = dirs): Dir[] =>
   dirs.length === 0
@@ -194,6 +195,15 @@ function solveFunctional(input: string) {
   console.log({ part1, part2 })
 }
 
+// end-to-end one-liner
+const solveDay7 = (input: string) =>
+  ((files: File[]) =>
+    ((dirs: Dir[]) => ({
+      part1: solvePart1Functional(dirs),
+      part2: solvePart2Functional(dirs, files),
+    }))(addEmptyDirs(getDirsFunctional(files)))
+  )(getFilesFunctional(input.split(/\r?\n/)))
+
 const solve = solveFunctional
 
 console.log(chalk.bgGreen(' Test input (both parts) '))
@@ -204,3 +214,7 @@ const realInput = readFileSync('days/7/7.txt').toString()
 console.log(chalk.bgGreen(' Real input (both parts) '))
 solve(realInput)
 console.log()
+
+// One-liner version
+console.log(solveDay7(testInput))
+console.log(solveDay7(realInput))
