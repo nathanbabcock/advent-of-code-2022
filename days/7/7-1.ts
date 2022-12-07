@@ -164,7 +164,7 @@ const addEmptyDirs = (dirs: Dir[], allDirs = dirs): Dir[] =>
     : ((dir, remainingDirs) => // loop over dirs
       addEmptyDirs(remainingDirs, // (top-level) recursion
         // get all subpaths
-        ((subPathFn: any) => subPathFn(dir.path, allDirs, subPathFn)) // insanity; calling a function with a ref to itself
+        ((subPathFn: any) => subPathFn(dir.path, allDirs, subPathFn)) // insanity; a function that returns the invocation of its parameter *on itself*
           ((subPath: string[], dirs: Dir[], subPathFn: (subPath: string[], dirs: Dir[], subPathFn: any) => Dir[]) =>
             subPath.length === 0
               ? dirs // base case
@@ -175,29 +175,22 @@ const addEmptyDirs = (dirs: Dir[], allDirs = dirs): Dir[] =>
       )
     )(dirs[0], dirs.slice(1))
 
-// !!! Edge case that worked for test input, but not real input:
-// Folders with no files inside them (only nested folders)
-// The above block doesn't count any of these (since they have "intrisic" size 0)
-// But they should be included in the whole list.
-// We add them here:
+const solvePart1Functional = (dirs: Dir[]): number =>
+  dirs
+    .map(dir => getSize(dir.path, dirs))
+    .filter(size => size <= 100000)
+    .reduce((acc, size) => acc + size, 0)
 
-// for (const dir of dirs) {
-//   for (let i = 0; i < dir.path.length; i++) {
-//     const subPath = dir.path.slice(0, i)
-//     if (!dirs.some(dir => dir.path.every((p, i) => p === subPath[i]) && dir.path.length === subPath.length))
-//       dirs.push({ path: [...subPath], size: 0 })
-//   }
-// }
+const solvePart2Functional = (dirs: Dir[], files: File[]): number =>
+  dirs.map(dir => ({ path: dir.path, size: getSize(dir.path, dirs) }))
+    .filter(dir => dir.size >= 30_000_000 - (70_000_000 - files.reduce((acc, file) => acc + file.size, 0)))
+    .sort((a, b) => a.size - b.size)[0].size
 
 function solveFunctional(input: string) {
   const files = getFilesFunctional(input.split(/\r?\n/))
-
-  // bootstrap with imperative modules the rest of the way
   const dirs = addEmptyDirs(getDirsFunctional(files))
-
-  // console.log(dirs)
-  const part1 = solvePart1Imperative(dirs)
-  const part2 = solvePart2Imperative(dirs, files)
+  const part1 = solvePart1Functional(dirs)
+  const part2 = solvePart2Functional(dirs, files)
   console.log({ part1, part2 })
 }
 
