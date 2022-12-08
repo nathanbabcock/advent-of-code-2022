@@ -69,4 +69,5 @@
               ? ((parts) => getFilesFunctional(otherLines, [...files, { path: [...curPath], name: parts[1], size: parseInt(parts[0]) }], curPath, getFilesFunctional))(line.split(' '))
               : getFilesFunctional(otherLines, files, curPath, getFilesFunctional))(lines[0], lines.slice(1)) // ...(head(lines), tail(lines))
         , input)
-  ))(document.body.innerText.split(/\r?\n/)) // <- input goes here ;)
+  )
+)(document.body.innerText.split(/\r?\n/)) // <- input goes here ;)
