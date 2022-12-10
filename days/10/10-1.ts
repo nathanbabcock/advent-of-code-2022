@@ -1,5 +1,8 @@
+import { edge_detection, gaussian_blur, padding_uniform, PhotonImage, resize, Rgba, SamplingFilter, sharpen } from '@silvia-odwyer/photon-node'
 import chalk from 'chalk'
-import { readFileSync } from 'fs'
+import { writeFileSync, readFileSync } from 'fs'
+import Tesseract from 'tesseract.js'
+
 const testInput = `noop
 addx 3
 addx -5`
@@ -35,7 +38,32 @@ const outputPart2 = Array.from(Array(6).keys())
     .join('')
   ).join('\n')
 
-// const test = Array.from(Array(6).keys())
-//   .map(i => [i * 40, (i + 1) * 40 - 1])
-
 console.log(outputPart2)
+
+function saveImage(img: PhotonImage, outputImageName: string) {
+  let outputBase64 = img.get_base64()
+  var outputData = outputBase64.replace(/^data:image\/\w+;base64,/, '')
+  writeFileSync(outputImageName, outputData, { encoding: 'base64' })
+  console.log(`Wrote ${outputImageName}`)
+}
+
+// convert to image
+const rawPixels = Array.from(Array(6).keys())
+  .flatMap(i => signals
+    .slice(i * 40, (i + 1) * 40 - 1) // off by one? (end of clock cycle vs beginning?)
+    .flatMap((x, j) => Math.abs(x - j) <= 1 ? [0, 0, 0, 255] : [255, 255, 255, 255])
+  )
+const uint8 = new Uint8Array(rawPixels)
+let img = new PhotonImage(uint8, 39, 6)
+img = padding_uniform(img, 2, new Rgba(255, 255, 255, 255))
+img = resize(img, img.get_width() * 10, img.get_height() * 10, SamplingFilter.Nearest)
+saveImage(img, 'days/10/10-sharp.png')
+
+// Post-process to improve recognition
+gaussian_blur(img, 4)
+saveImage(img, 'days/10/10-blurred.png')
+
+// Run tesseract
+console.log('Detecting text with Tesseract...')
+Tesseract.recognize('days/10/10-blurred.png')
+  .then(x => console.log(chalk.green(x.data.text)))

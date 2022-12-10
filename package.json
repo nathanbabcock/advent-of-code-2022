@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/nathanbabcock/advent-of-code-2022#readme",
   "dependencies": {
+    "@silvia-odwyer/photon-node": "^0.3.2",
     "chalk": "^5.1.2",
+    "tesseract.js": "^4.0.1",
     "zod": "^3.19.1"
   },
   "devDependencies": {
